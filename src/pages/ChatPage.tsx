@@ -44,7 +44,7 @@ const ChatPage = () => {
   ];
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] -mt-8 -mx-8">
+    <div className="flex h-screen -m-8">
       <div className="w-80 border-r border-gray-200 bg-white">
         <div className="p-4">
           <div className="flex space-x-2 mb-4">
