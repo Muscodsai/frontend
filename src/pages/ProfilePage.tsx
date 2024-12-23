@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Edit, Users } from 'lucide-react';
 import PostCard from '../components/post/PostCard';
 import type { Post, User } from '../types';
+
+import Edit from '../assets/Edit';
+import Users from '../assets/User';
 
 const ProfilePage = () => {
   // Mock data - in a real app, this would come from an API

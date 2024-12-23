@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Search, Users } from 'lucide-react';
 import ChatList from '../components/chat/ChatList';
 import ChatWindow from '../components/chat/ChatWindow';
 import type { Chat } from '../types';
+
+import Search from '../assets/Search';
+import Users from '../assets/User';
 
 const ChatPage = () => {
   const [activeChat, setActiveChat] = useState<Chat | null>(null);

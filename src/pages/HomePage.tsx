@@ -1,5 +1,6 @@
 import React from 'react';
-import { BookOpen, ThumbsUp, Bookmark } from 'lucide-react';
+import Bookmark from '../assets/Bookmark';
+import ThumbsUp from '../assets/ThumbsUp';
 
 const HomePage = () => {
   const featuredPosts = [
@@ -37,7 +38,7 @@ const HomePage = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <span className="flex items-center text-gray-500">
-                    <BookOpen className="w-4 h-4 mr-1" />
+                    <Bookmark className="w-4 h-4 mr-1" />
                     {post.readTime} min read
                   </span>
                   <span className="flex items-center text-gray-500">

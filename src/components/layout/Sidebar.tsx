@@ -1,13 +1,17 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Library, PenSquare, MessageCircle, User, Settings } from 'lucide-react';
+import Home from '../../assets/Home';
+import Library from '../../assets/Library';
+import Message from '../../assets/Message';
+import User from '../../assets/User';
+import Settings from '../../assets/Settings';
 
 const Sidebar = () => {
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
     { icon: Library, label: 'Library', path: '/library' },
-    { icon: PenSquare, label: 'Write', path: '/write' },
-    { icon: MessageCircle, label: 'Chat', path: '/chat' },
+    { icon: Message, label: 'Write', path: '/write' },
+    { icon: Message, label: 'Chat', path: '/chat' },
     { icon: User, label: 'Profile', path: '/profile' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];

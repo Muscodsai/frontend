@@ -2,7 +2,9 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Image, Save } from 'lucide-react';
+
+import Image from '../assets/Image';
+import Save from '../assets/Save';
 
 const postSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100),

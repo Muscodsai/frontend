@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Send } from 'lucide-react';
 import type { Chat } from '../../types';
+import Send from "../../assets/Send";
 
 interface ChatWindowProps {
   chat: Chat;

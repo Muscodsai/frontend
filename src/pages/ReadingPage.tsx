@@ -1,6 +1,9 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { ThumbsUp, MessageCircle, Bookmark, Share2 } from 'lucide-react';
+import ThumbsUp from '../assets/ThumbsUp';
+import Message from '../assets/Message';
+import Bookmark from '../assets/Bookmark';
+import Share from '../assets/Share';
 
 const ReadingPage = () => {
   const { id } = useParams();
@@ -48,7 +51,7 @@ const ReadingPage = () => {
         
         <div className="flex items-center space-x-4">
           <button className="text-gray-500 hover:text-gray-700">
-            <Share2 className="w-5 h-5" />
+            <Share className="w-5 h-5" />
           </button>
           <button className="text-gray-500 hover:text-gray-700">
             <Bookmark className="w-5 h-5" />
@@ -71,7 +74,7 @@ const ReadingPage = () => {
             <span>{post.likes}</span>
           </button>
           <button className="flex items-center space-x-2 text-gray-500 hover:text-gray-700">
-            <MessageCircle className="w-5 h-5" />
+            <Message className="w-5 h-5" />
             <span>Comments</span>
           </button>
         </div>

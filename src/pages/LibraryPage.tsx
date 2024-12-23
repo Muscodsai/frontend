@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PostCard from '../components/post/PostCard';
-import { BookOpen, Layers } from 'lucide-react';
+import Bookmark from '../assets/Bookmark';
+import Layers from '../assets/Layers';
 
 const LibraryPage = () => {
   const [activeTab, setActiveTab] = useState<'series' | 'single'>('single');
@@ -64,7 +65,7 @@ const LibraryPage = () => {
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          <BookOpen className="w-5 h-5" />
+          <Bookmark className="w-5 h-5" />
           <span>Single Posts</span>
         </button>
         <button
