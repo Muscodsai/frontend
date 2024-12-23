@@ -1,0 +1,164 @@
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import AuthLayout from '../components/auth/AuthLayout';
+
+const registerSchema = z.object({
+    name: z.string().min(2, 'Name must be at least 2 characters'),
+    email: z.string().email('Invalid email address'),
+    password: z.string()
+        .min(8, 'Password must be at least 8 characters')
+        .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+        .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+        .regex(/[0-9]/, 'Password must contain at least one number'),
+    confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine((val) => val === true, {
+        message: 'You must accept the terms and conditions',
+    }),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
+
+const RegisterPage = () => {
+    const navigate = useNavigate();
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterFormData>({
+        resolver: zodResolver(registerSchema),
+    });
+
+    const onSubmit = async (data: RegisterFormData) => {
+        try {
+            console.log('Register data:', data);
+            // Here you would typically handle registration
+            navigate('/');
+        } catch (error) {
+            console.error('Registration error:', error);
+        }
+    };
+
+    return (
+        <AuthLayout
+            title="Create your account"
+            subtitle={
+                <>
+                    Already have an account?{' '}
+                    <Link to="/login" className="font-medium text-gray-900 hover:text-gray-800">
+                        Sign in
+                    </Link>
+                </>
+            }
+        >
+            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                        Full name
+                    </label>
+                    <div className="mt-1">
+                        <input
+                            {...register('name')}
+                            id="name"
+                            type="text"
+                            autoComplete="name"
+                            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500"
+                        />
+                        {errors.name && (
+                            <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                        )}
+                    </div>
+                </div>
+
+                <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                        Email address
+                    </label>
+                    <div className="mt-1">
+                        <input
+                            {...register('email')}
+                            id="email"
+                            type="email"
+                            autoComplete="email"
+                            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500"
+                        />
+                        {errors.email && (
+                            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                        )}
+                    </div>
+                </div>
+
+                <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                        Password
+                    </label>
+                    <div className="mt-1">
+                        <input
+                            {...register('password')}
+                            id="password"
+                            type="password"
+                            autoComplete="new-password"
+                            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500"
+                        />
+                        {errors.password && (
+                            <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                        )}
+                    </div>
+                </div>
+
+                <div>
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                        Confirm password
+                    </label>
+                    <div className="mt-1">
+                        <input
+                            {...register('confirmPassword')}
+                            id="confirmPassword"
+                            type="password"
+                            autoComplete="new-password"
+                            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500"
+                        />
+                        {errors.confirmPassword && (
+                            <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+                        )}
+                    </div>
+                </div>
+
+                <div className="flex items-center">
+                    <input
+                        {...register('acceptTerms')}
+                        id="accept-terms"
+                        type="checkbox"
+                        className="h-4 w-4 text-gray-900 focus:ring-gray-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="accept-terms" className="ml-2 block text-sm text-gray-900">
+                        I agree to the{' '}
+                        <a href="#" className="font-medium text-gray-900 hover:text-gray-800">
+                            Terms of Service
+                        </a>{' '}
+                        and{' '}
+                        <a href="#" className="font-medium text-gray-900 hover:text-gray-800">
+                            Privacy Policy
+                        </a>
+                    </label>
+                </div>
+                {errors.acceptTerms && (
+                    <p className="text-sm text-red-600">{errors.acceptTerms.message}</p>
+                )}
+
+                <div>
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isSubmitting ? 'Creating account...' : 'Create account'}
+                    </button>
+                </div>
+            </form>
+        </AuthLayout>
+    );
+};
+
+export default RegisterPage;
