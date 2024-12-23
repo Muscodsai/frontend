@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Send } from 'lucide-react';
+import { Send } from '../../asserts/icons';
 import type { Chat } from '../../types';
 
 interface ChatWindowProps {

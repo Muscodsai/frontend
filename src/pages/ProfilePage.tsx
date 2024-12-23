@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Edit, Users } from 'lucide-react';
+import { Edit, Users } from '../asserts/icons';
 import PostCard from '../components/post/PostCard';
 import type { Post, User } from '../types';
 

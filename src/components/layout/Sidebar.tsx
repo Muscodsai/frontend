@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Library, PenSquare, MessageCircle, User, Settings } from 'lucide-react';
+import { Home, Library, PenSquare, MessageCircle, User, Settings} from "../../asserts/icons"
 
 const Sidebar = () => {
   const navItems = [

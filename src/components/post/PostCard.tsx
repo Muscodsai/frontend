@@ -1,4 +1,4 @@
-import { BookOpen, ThumbsUp, Bookmark } from 'lucide-react';
+import { ThumbsUp, Bookmark } from '../../asserts/icons';
 import { Link } from 'react-router-dom';
 import type { Post } from '../../types';
 
@@ -34,7 +34,7 @@ const PostCard = ({ post, showFullContent = false }: PostCardProps) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <span className="flex items-center text-gray-500">
-              <BookOpen className="w-4 h-4 mr-1" />
+              <Bookmark className="w-4 h-4 mr-1" />
               {post.readTime} min read
             </span>
             <span className="flex items-center text-gray-500">

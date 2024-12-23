@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Users } from 'lucide-react';
+import { Search, Users } from '../asserts/icons';
 import ChatList from '../components/chat/ChatList';
 import ChatWindow from '../components/chat/ChatWindow';
 import type { Chat } from '../types';

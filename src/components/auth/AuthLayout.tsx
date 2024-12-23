@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import { BookOpen } from 'lucide-react';
+import { BookOpen } from '../../asserts/icons';
 
 interface AuthLayoutProps {
     children: ReactNode;
@@ -13,10 +12,10 @@ const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center">
-                    <Link to="/" className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2">
                         <BookOpen className="w-10 h-10 text-gray-900" />
                         <span className="text-2xl font-bold text-gray-900">ReadHub</span>
-                    </Link>
+                    </div>
                 </div>
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                     {title}

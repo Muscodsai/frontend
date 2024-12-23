@@ -66,6 +66,7 @@ const LoginPage = () => {
             }
         } catch (error) {
             console.error('Login error:', error);
+            alert("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
         }
     };
 

@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { Save } from "lucide-react";
+import { Save } from "../asserts/icons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {server} from "../utils/address";
-import {readCookies} from "../utils/cookies"
+import {clearCookies, readCookies} from "../utils/cookies"
 import {useNavigate} from "react-router-dom";
 
 const settingsSchema = z.object({
@@ -67,13 +67,22 @@ const SettingsPage: React.FC = () => {
                         });
                     } else {
                         console.error(`Response code ${res.status}: ${userData.error}`);
+                        clearCookies();
                         navigate("/login");
+                        alert("Authentication Failed, Please Login Again");
                     }
                 });
+            }).catch((error) => {
+                console.error("Failed to connect:", error);
+                clearCookies();
+                navigate("/login");
+                alert("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
             });
         } catch (error) {
             console.error("Failed to fetch user details:", error);
+            clearCookies();
             navigate("/login");
+            alert("Authentication Failed, Please Login Again");
         }
     }, [reset, userId]);
 

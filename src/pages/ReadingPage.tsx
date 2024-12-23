@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { ThumbsUp, MessageCircle, Bookmark, Share2 } from 'lucide-react';
+import { ThumbsUp, MessageCircle, Bookmark, Share2 } from '../asserts/icons';
 
 const ReadingPage = () => {
   const { id } = useParams();

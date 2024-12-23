@@ -57,6 +57,7 @@ const RegisterPage = () => {
             }
         } catch (error) {
             console.error('Registration error:', error);
+            alert("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
         }
     };
 

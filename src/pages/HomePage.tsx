@@ -1,4 +1,4 @@
-import { BookOpen, ThumbsUp, Bookmark } from 'lucide-react';
+import { BookOpen, ThumbsUp, Bookmark } from '../asserts/icons';
 
 const HomePage = () => {
   const featuredPosts = [
