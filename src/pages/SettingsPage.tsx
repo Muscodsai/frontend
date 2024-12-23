@@ -3,7 +3,7 @@ import { Save } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import axios from "axios";
+import {server} from "./server.ts";
 
 const settingsSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -24,6 +24,7 @@ const SettingsPage: React.FC = () => {
         register,
         handleSubmit,
         reset,
+        watch,
         formState: { errors },
     } = useForm<SettingsFormData>({
         resolver: zodResolver(settingsSchema),
@@ -47,22 +48,29 @@ const SettingsPage: React.FC = () => {
      *  - Cookie
      *  - Session
      */
-    const userId = 123;
+    const userId = 0;
 
     useEffect(() => {
         try {
-            axios.get(`/v1/user/${userId}`).then((response) => {
-                const userData = response.data;
-                reset({
-                    name: `${userData.nameFirst || ""} ${userData.nameLast || ""}`,
-                    email: userData.email || "",
-                    bio: userData.bio || "",
-                    avatar: userData.avatar || "",
-                    emailNotifications: userData.notifications || {
-                        newFollower: false,
-                        newComment: false,
-                        newMessage: false,
-                    },
+            fetch(`${server}/v1/user/${userId}`, {
+                method: 'GET'
+            }).then(res => {
+                res.json().then((userData) => {
+                    if (res.ok) {
+                        reset({
+                            name: `${userData.nameFirst || ""} ${userData.nameLast || ""}`,
+                            email: userData.email || "",
+                            bio: userData.bio || "",
+                            avatar: userData.avatar || "",
+                            emailNotifications: userData.notifications || {
+                                newFollower: false,
+                                newComment: false,
+                                newMessage: false,
+                            },
+                        });
+                    } else {
+                        console.error(`Response code ${res.status}: ${userData.error}`);
+                    }
                 });
             });
         } catch (error) {
@@ -77,25 +85,53 @@ const SettingsPage: React.FC = () => {
                 return alert("Use at most 1 space to separate your firstname and lastname");
             const [nameFirst, nameLast] = data.name.split(" ");
 
-            const updateNames = axios.put("/v1/user/update", {
-                userId,
-                username: data.name,
-                nameFirst,
-                nameLast: nameLast || "",
-            });
+            const updateNames = fetch(`${server}/v1/user/update`, {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json',  // Set the correct content type
+                },
+                body: JSON.stringify({
+                    username: data.name,
+                    nameFirst: nameFirst,
+                    nameLast: nameLast,
+                    userId: userId,
+                })});
+            const updateEmail = fetch(`${server}/v1/user/email`, {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json',  // Set the correct content type
+                },
+                body: JSON.stringify({
+                    newEmail: data.email,
+                    userId: userId,
+                })});
+            const updateNotifications = fetch(`${server}/v1/user/notifications`, {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json',  // Set the correct content type
+                },
+                body: JSON.stringify({
+                    userId,
+                    emailNotifications: data.emailNotifications,
+                })});
 
-            const updateEmail = axios.put("/v1/user/email", {
-                userId,
-                newEmail: data.email,
-            });
-
-            const updateNotifications = axios.put("/v1/user/notifications", {
-                userId,
-                emailNotifications: data.emailNotifications,
-            });
-
-            await Promise.all([updateNames, updateEmail, updateNotifications]);
-            alert("Settings updated successfully!");
+            let errors = [];
+            for (let res of await Promise.all([updateNames, updateEmail, updateNotifications])) {
+                if (! res.ok) {
+                    try {
+                        const userData = await res.json();
+                        errors.push(`Status code ${res.status} (${res.statusText}): ${userData.error}`);
+                    } catch (error) {
+                        errors.push(`${res.url} responded ${res.status}`);
+                    }
+                }
+            }
+            if (errors.length > 0) {
+                console.error(errors);
+                alert("Failed to update settings.\n\n" + errors.join("\n"));
+            } else {
+                alert("Settings updated successfully!");
+            }
         } catch (error) {
             console.error("Error updating settings:", error);
             alert("Failed to update settings.");
@@ -125,7 +161,7 @@ const SettingsPage: React.FC = () => {
                         </label>
                         <div className="flex items-center space-x-4">
                             <img
-                                src={register("avatar").value}
+                                src={watch('avatar')}
                                 alt="Profile"
                                 className="w-16 h-16 rounded-full object-cover"
                             />
