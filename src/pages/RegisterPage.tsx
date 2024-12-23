@@ -1,9 +1,10 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import AuthLayout from '../components/auth/AuthLayout';
+import {server} from "../utils/address";
+import {SHA256} from "crypto-js"
 
 const registerSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -14,7 +15,7 @@ const registerSchema = z.object({
         .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
         .regex(/[0-9]/, 'Password must contain at least one number'),
     confirmPassword: z.string(),
-    acceptTerms: z.boolean().refine((val) => val === true, {
+    acceptTerms: z.boolean().refine((val) => val, {
         message: 'You must accept the terms and conditions',
     }),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -33,8 +34,27 @@ const RegisterPage = () => {
     const onSubmit = async (data: RegisterFormData) => {
         try {
             console.log('Register data:', data);
-            // Here you would typically handle registration
-            navigate('/');
+
+            const response = await fetch(`${server}/v1/signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',  // Set the correct content type
+                },
+                body: JSON.stringify({
+                    email: data.email,
+                    username: data.name,
+                    password: SHA256(data.password).toString(),
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert("Registration successful!");
+                navigate('/login');
+            } else {
+                alert("Registration failed.\n" + result.error);
+            }
         } catch (error) {
             console.error('Registration error:', error);
         }

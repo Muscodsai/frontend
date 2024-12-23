@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Edit, Users } from 'lucide-react';
 import PostCard from '../components/post/PostCard';

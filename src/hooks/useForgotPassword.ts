@@ -7,6 +7,7 @@ export const useForgotPassword = () => {
     const sendResetLink = async (email: string) => {
         setIsLoading(true);
         try {
+            console.log(email);
             // Here you would typically make an API call to send the reset link
             await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
             setIsSuccess(true);

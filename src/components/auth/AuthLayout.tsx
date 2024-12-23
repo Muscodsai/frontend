@@ -1,11 +1,11 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
 
 interface AuthLayoutProps {
-    children: React.ReactNode;
+    children: ReactNode;
     title: string;
-    subtitle: string;
+    subtitle: ReactNode;
 }
 
 const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {

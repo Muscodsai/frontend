@@ -1,4 +1,3 @@
-import React from 'react';
 import { BookOpen, ThumbsUp, Bookmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Post } from '../../types';

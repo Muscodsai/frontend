@@ -1,29 +1,69 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import AuthLayout from '../components/auth/AuthLayout';
+import {server} from "../utils/address.ts";
+import {SHA256} from "crypto-js";
+import {clearCookies, readCookies, setCookies} from "../utils/cookies.ts";
+import {useEffect} from "react";
 
 const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
+    password: z.string()
+        .min(8, 'Password must be at least 8 characters')
+        .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+        .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+        .regex(/[0-9]/, 'Password must contain at least one number'),
     rememberMe: z.boolean().optional(),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
+
     const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
     });
 
+    useEffect(() => {
+        const cookies = readCookies();
+
+        if (cookies.remember && cookies.expires > Date.now()) {
+            navigate("/");
+            return;
+        }
+        clearCookies();
+    });
+
     const onSubmit = async (data: LoginFormData) => {
         try {
-            console.log('Login data:', data);
-            // Here you would typically handle authentication
-            navigate('/');
+            const response = await fetch(`${server}/v1/signin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',  // Set the correct content type
+                },
+                body: JSON.stringify({
+                    email: data.email,
+                    password: SHA256(data.password).toString(),
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log("Session Info: \n" + result);
+                const cookies = {
+                    id: result.id,
+                    remember: data.rememberMe,
+                    expires: Date.now() + 6e8
+                };
+                setCookies(cookies);
+                navigate('/');
+            } else {
+                alert(result.error);
+            }
         } catch (error) {
             console.error('Login error:', error);
         }

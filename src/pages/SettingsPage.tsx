@@ -3,7 +3,9 @@ import { Save } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {server} from "./server.ts";
+import {server} from "../utils/address";
+import {readCookies} from "../utils/cookies"
+import {useNavigate} from "react-router-dom";
 
 const settingsSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -20,6 +22,7 @@ const settingsSchema = z.object({
 type SettingsFormData = z.infer<typeof settingsSchema>;
 
 const SettingsPage: React.FC = () => {
+    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
@@ -41,14 +44,8 @@ const SettingsPage: React.FC = () => {
         },
     });
 
-    //Need to be replaced by the actual ID of the user
-    /*
-     * This can come from:
-     *  - URL, e.g. https://.../profile/123
-     *  - Cookie
-     *  - Session
-     */
-    const userId = 0;
+    const cookies = readCookies();
+    const userId = cookies.id;
 
     useEffect(() => {
         try {
@@ -70,11 +67,13 @@ const SettingsPage: React.FC = () => {
                         });
                     } else {
                         console.error(`Response code ${res.status}: ${userData.error}`);
+                        navigate("/login");
                     }
                 });
             });
         } catch (error) {
             console.error("Failed to fetch user details:", error);
+            navigate("/login");
         }
     }, [reset, userId]);
 

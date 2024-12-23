@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PostCard from '../components/post/PostCard';
 import { BookOpen, Layers } from 'lucide-react';
 

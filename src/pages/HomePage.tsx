@@ -1,4 +1,3 @@
-import React from 'react';
 import { BookOpen, ThumbsUp, Bookmark } from 'lucide-react';
 
 const HomePage = () => {

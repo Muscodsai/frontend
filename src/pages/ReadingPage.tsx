@@ -1,4 +1,3 @@
-import React from 'react';
 import { useParams } from 'react-router-dom';
 import { ThumbsUp, MessageCircle, Bookmark, Share2 } from 'lucide-react';
 
