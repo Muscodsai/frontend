@@ -1,7 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import {Link, useNavigate} from 'react-router-dom';
+import {useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {z} from 'zod';
 import AuthLayout from '../components/auth/AuthLayout';
 import {server} from "../utils/address.ts";
 import {SHA256} from "crypto-js";
@@ -23,7 +23,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const LoginPage = () => {
 
     const navigate = useNavigate();
-    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
+    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
     });
 

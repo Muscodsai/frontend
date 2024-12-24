@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
-import { Save } from "../asserts/icons";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import React, {useEffect} from "react";
+import {Save} from "../asserts/icons";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {z} from "zod";
 import {server} from "../utils/address";
 import {clearCookies, readCookies} from "../utils/cookies"
 import {useNavigate} from "react-router-dom";
@@ -28,7 +28,7 @@ const SettingsPage: React.FC = () => {
         handleSubmit,
         reset,
         watch,
-        formState: { errors },
+        formState: {errors},
     } = useForm<SettingsFormData>({
         resolver: zodResolver(settingsSchema),
         defaultValues: {
@@ -103,7 +103,8 @@ const SettingsPage: React.FC = () => {
                     nameFirst: nameFirst,
                     nameLast: nameLast,
                     userId: userId,
-                })});
+                })
+            });
             const updateEmail = fetch(`${server}/v1/user/email`, {
                 method: "PUT",
                 headers: {
@@ -112,7 +113,8 @@ const SettingsPage: React.FC = () => {
                 body: JSON.stringify({
                     newEmail: data.email,
                     userId: userId,
-                })});
+                })
+            });
             const updateNotifications = fetch(`${server}/v1/user/notifications`, {
                 method: "PUT",
                 headers: {
@@ -121,11 +123,12 @@ const SettingsPage: React.FC = () => {
                 body: JSON.stringify({
                     userId,
                     emailNotifications: data.emailNotifications,
-                })});
+                })
+            });
 
             let errors = [];
             for (let res of await Promise.all([updateNames, updateEmail, updateNotifications])) {
-                if (! res.ok) {
+                if (!res.ok) {
                     try {
                         const userData = await res.json();
                         errors.push(`Status code ${res.status} (${res.statusText}): ${userData.error}`);
@@ -165,7 +168,7 @@ const SettingsPage: React.FC = () => {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Profile Picture
+                            Profile Picture
                         </label>
                         <div className="flex items-center space-x-4">
                             <img

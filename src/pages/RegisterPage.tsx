@@ -1,7 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import {Link, useNavigate} from 'react-router-dom';
+import {useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {z} from 'zod';
 import AuthLayout from '../components/auth/AuthLayout';
 import {server} from "../utils/address";
 import {SHA256} from "crypto-js"
@@ -27,14 +27,12 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 const RegisterPage = () => {
     const navigate = useNavigate();
-    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterFormData>({
+    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<RegisterFormData>({
         resolver: zodResolver(registerSchema),
     });
 
     const onSubmit = async (data: RegisterFormData) => {
         try {
-            console.log('Register data:', data);
-
             const response = await fetch(`${server}/v1/signup`, {
                 method: 'POST',
                 headers: {
