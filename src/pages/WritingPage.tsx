@@ -9,6 +9,7 @@ import {z} from 'zod';
 import {Image, Save} from '../asserts/icons';
 import {server} from "../utils/address.ts";
 import {readCookies} from "../utils/cookies.ts";
+import {popup} from "../utils/popup.ts";
 
 const postSchema = z.object({
     title: z.string().min(1, 'Title is required').max(100),
@@ -53,13 +54,13 @@ const WritingPage = () => {
             const result = await response.json();
 
             if (response.ok) {
-                alert("Upload Successfully");
+                popup("Upload Successfully");
             } else {
-                alert(result.error);
+                popup(result.error);
             }
         } catch (error) {
             console.error('Login error:', error);
-            alert("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+            popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
         }
     };
 

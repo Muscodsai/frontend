@@ -2,6 +2,7 @@ import {useParams} from 'react-router-dom';
 import {Bookmark, MessageCircle, Share2, ThumbsUp} from '../asserts/icons';
 import {server} from "../utils/address.ts";
 import {useEffect, useState} from "react";
+import {popup} from "../utils/popup.ts";
 
 const ReadingPage = () => {
     const {id} = useParams();
@@ -38,11 +39,11 @@ const ReadingPage = () => {
                 if (response.ok) {
                     author.name = result.username;
                 } else {
-                    alert(result.error);
+                    popup(result.error);
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                alert("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
             }
             return author;
         }
@@ -65,11 +66,11 @@ const ReadingPage = () => {
                     setLoading(false);
                     return post;
                 } else {
-                    alert(result.error);
+                    popup(result.error);
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                alert("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
             }
         }
         getArticle().then((post) => {setPost(post);});

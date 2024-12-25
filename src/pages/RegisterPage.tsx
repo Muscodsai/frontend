@@ -5,6 +5,7 @@ import {z} from 'zod';
 import AuthLayout from '../components/auth/AuthLayout';
 import {server} from "../utils/address";
 import {SHA256} from "crypto-js"
+import {popup} from "../utils/popup.ts";
 
 const registerSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -48,14 +49,14 @@ const RegisterPage = () => {
             const result = await response.json();
 
             if (response.ok) {
-                alert("Registration successful!");
+                popup("Registration successful!");
                 navigate('/login');
             } else {
-                alert("Registration failed.\n" + result.error);
+                popup("Registration failed.\n" + result.error);
             }
         } catch (error) {
             console.error('Registration error:', error);
-            alert("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+            popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
         }
     };
 

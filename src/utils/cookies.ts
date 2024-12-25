@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie';
 import {SHA256} from "crypto-js";
 
+
 export function setCookies(cookies: any): void {
     for (let key of Object.keys(cookies)) {
         Cookies.set(key, JSON.stringify(cookies[key]));

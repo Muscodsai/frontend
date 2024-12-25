@@ -6,6 +6,7 @@ import {z} from "zod";
 import {server} from "../utils/address";
 import {clearCookies, readCookies} from "../utils/cookies"
 import {useNavigate} from "react-router-dom";
+import {popup} from "../utils/popup.ts";
 
 const settingsSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -69,20 +70,18 @@ const SettingsPage: React.FC = () => {
                         console.error(`Response code ${res.status}: ${userData.error}`);
                         clearCookies();
                         navigate("/login");
-                        alert("Authentication Failed, Please Login Again");
+                        popup("Authentication Failed, Please Login Again");
                     }
                 });
             }).catch((error) => {
                 console.error("Failed to connect:", error);
-                clearCookies();
-                navigate("/login");
-                alert("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
             });
         } catch (error) {
             console.error("Failed to fetch user details:", error);
             clearCookies();
             navigate("/login");
-            alert("Authentication Failed, Please Login Again");
+            popup("Authentication Failed, Please Login Again");
         }
     }, [reset, userId]);
 
@@ -90,7 +89,7 @@ const SettingsPage: React.FC = () => {
     const onSubmit = async (data: SettingsFormData) => {
         try {
             if (data.name.split(" ").length > 2)
-                return alert("Use at most 1 space to separate your firstname and lastname");
+                return popup("Use at most 1 space to separate your firstname and lastname");
             const [nameFirst, nameLast] = data.name.split(" ");
 
             const updateNames = fetch(`${server}/v1/user/update`, {
@@ -139,13 +138,13 @@ const SettingsPage: React.FC = () => {
             }
             if (errors.length > 0) {
                 console.error(errors);
-                alert("Failed to update settings.\n\n" + errors.join("\n"));
+                popup("Failed to update settings.\n\n" + errors.join("\n"));
             } else {
-                alert("Settings updated successfully!");
+                popup("Settings updated successfully!");
             }
         } catch (error) {
             console.error("Error updating settings:", error);
-            alert("Failed to update settings.");
+            popup("Failed to update settings.");
         }
     };
 

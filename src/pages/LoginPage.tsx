@@ -7,6 +7,7 @@ import {server} from "../utils/address.ts";
 import {SHA256} from "crypto-js";
 import {clearCookies, readCookies, setCookies} from "../utils/cookies.ts";
 import {useEffect} from "react";
+import {popup} from "../utils/popup.ts";
 
 const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
@@ -29,12 +30,18 @@ const LoginPage = () => {
 
     useEffect(() => {
         const cookies = readCookies();
-
-        if (cookies.remember && cookies.expires > Date.now()) {
+        if (!cookies) {
+            clearCookies();
+            return;
+        }
+        if (cookies.expires < Date.now()) {
+            clearCookies();
+            return;
+        }
+        if (cookies.remember) {
             navigate("/");
             return;
         }
-        clearCookies();
     });
 
     const onSubmit = async (data: LoginFormData) => {
@@ -66,7 +73,7 @@ const LoginPage = () => {
             }
         } catch (error) {
             console.error('Login error:', error);
-            alert("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+            popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
         }
     };
 
