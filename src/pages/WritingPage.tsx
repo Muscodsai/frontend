@@ -11,9 +11,9 @@ const WritingPage = () => {
         body: JSON.stringify({
             session: getSession(),
             title: form.title,
-            summary: null,
+            summary: form.summary,
             content: form.content,
-            long: form.content.length,
+            long: form.content.length > 100 ? true : false,
             price: 0,
             tags: 0,
             preId: 0
@@ -38,14 +38,30 @@ const WritingPage = () => {
         </div>
 
         <div>
-          <textarea
-            name="content"
-            rows={12}
-            placeholder="Tell your story..."
-            className="w-full border-0 focus:ring-0 placeholder-gray-400 resize-none"
+          <input
+            name="summary"
+            type="text"
+            placeholder="Use one sentence to summerised your story."
+            className="w-full text-2xl font-bold border-0 focus:ring-0 placeholder-gray-400"
           />
         </div>
-        <button type="submit">Publish</button>
+
+        <div>
+          <textarea
+            name="content"
+            rows={15}
+            placeholder="Share your story..."
+            className="w-full text-xl border-0 focus:ring-0 placeholder-gray-400 resize-none"
+          />
+        </div>
+
+        <button
+        type="submit"
+        className="px-4 py-2 rounded-lg bg-gray-900 text-white"
+        >
+        <span>Publish</span>
+        </button>
+
       </form>
     </div>
   );
