@@ -14,12 +14,9 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        const getArticle = async (articleId: number) => {
+        const getArticle = async (articleId: number, user: any) => {
             try {
-                let post: any = {
-                    coverImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',  // STUB!
-                    readTime: 5,  // STUB!
-                };
+                let post: any = {};
                 const response = await fetch(`${server}/v1/article/${articleId}`, {
                     method: 'GET'
                 });
@@ -31,9 +28,13 @@ const ProfilePage = () => {
                     post.title = result.title;
                     post.content = result.content;
                     post.author = user;
-                    post.publishedAt = result.initialCreateTime;
-                    post.likes = result.likes.length;
-                    post.isSeries = result.long;
+                    post.publishedTime = result.publishTime;
+                    post.likes = result.likes;
+                    post.isSeries = result.isSeries;
+                    post.readTime = result.readTime;
+                    post.cover = result.cover;
+
+                    post.state = user.library.indexOf(post.id) > -1;
                     return post;
                 } else {
                     popup(result.error);
@@ -45,10 +46,7 @@ const ProfilePage = () => {
         }
 
         const getUser = async () => {
-            let userInfo: any = {
-                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',  // STUB!
-                bio: 'Tech writer and web developer'  // STUB!
-            };
+            let userInfo: any = {};
             try {
                 const response = await fetch(`${server}/v1/user/${id}`, {
                     method: 'GET'
@@ -61,10 +59,13 @@ const ProfilePage = () => {
                     userInfo.email = result.email;
                     userInfo.followers = result.followers.length;
                     userInfo.following = result.following.length;
+                    userInfo.avatar = result.avatar;
+                    userInfo.bio = result.bio;
+                    userInfo.library = result.library;
                     setUser(userInfo);
                     let postsPromise: any[] = [];
-                    for (let post of result.publishedArticles) {
-                        postsPromise.push(getArticle(post));
+                    for (let post of result.publications) {
+                        postsPromise.push(getArticle(post, userInfo));
                     }
                     setPost(await Promise.all(postsPromise));
                     setLoading(false);
@@ -82,8 +83,6 @@ const ProfilePage = () => {
     if (loading) {
         return <p>Loading...</p>;
     }
-
-    console.log(userPosts);
 
     return (
         <div className="max-w-5xl mx-auto">
@@ -125,7 +124,7 @@ const ProfilePage = () => {
             <div className="space-y-8">
                 <h2 className="text-2xl font-bold">Published Stories</h2>
                 {userPosts.map(post => (
-                    <PostCard key={post.id} post={post}/>
+                    <PostCard key={post.id} post={post} userId={id} state={post.state}/>
                 ))}
             </div>
         </div>

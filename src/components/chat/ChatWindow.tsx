@@ -22,14 +22,14 @@ const ChatWindow = ({ chat }: ChatWindowProps) => {
       <div className="border-b border-gray-200 bg-white p-4">
         <div className="flex items-center space-x-3">
           <img
-            src={chat.participants[0].avatar}
-            alt={chat.participants[0].name}
+            src={chat.members[0].avatar}
+            alt={chat.members[0].username}
             className="w-10 h-10 rounded-full object-cover"
           />
           <div>
-            <h2 className="font-medium">{chat.participants[0].name}</h2>
+            <h2 className="font-medium">{chat.members[0].username}</h2>
             <p className="text-sm text-gray-500">
-              {chat.isGroup ? 'Group Chat' : 'Private Chat'}
+              {chat.members.length === 2 ? 'Group Chat' : 'Private Chat'}
             </p>
           </div>
         </div>
@@ -52,7 +52,7 @@ const ChatWindow = ({ chat }: ChatWindowProps) => {
             >
               <p>{msg.content}</p>
               <span className="text-xs text-gray-400 mt-1 block">
-                {new Date(msg.timestamp).toLocaleTimeString()}
+                {msg.sendTime.toLocaleTimeString()}
               </span>
             </div>
           </div>

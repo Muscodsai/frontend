@@ -1,37 +1,66 @@
 export interface User {
   id: string;
-  name: string;
+  username: string;
   email: string;
+  password: string;
+  library: number[];
   avatar: string;
+  publications: number[];
+  followers: number[];
+  following: number[];
+  emailPreference: EmailPreference;
   bio: string;
-  following: number;
-  followers: number;
+  likes: number;
+  balance: number;
+  activeChats: number[];
+  activeSessions: number[];
 }
 
-export interface Post {
-  id: string;
+export interface EmailPreference {
+  newFollower: boolean,
+  newComment: boolean,
+  newMessage: boolean,
+}
+
+export interface Comment {
+  id: number[];
+  author: User;
+  body: string;
+  replies: Comment[];
+  likes: number;
+  dislikes: number;
+  commentTime: Date;
+}
+
+export interface Article {
+  id: number;
+  author: User;
+  cover: string;
   title: string;
   content: string;
-  coverImage: string;
-  author: User;
-  publishedAt: string;
-  readTime: number;
-  likes: number;
   isSeries: boolean;
-  seriesName?: string;
+  publishedTime: Date;
+  lastEdit: Date;
+  likes: number;
+  dislikes: number;
+  readTime: number;
+  comments: Comment[];
+  previous: number;
+  next: number;
+  price: number;
+  tags: string[];
 }
 
 export interface Message {
-  id: string;
-  content: string;
+  id: number;
   sender: User;
-  timestamp: string;
+  content: string;
+  sendTime: Date;
 }
 
 export interface Chat {
-  id: string;
-  participants: User[];
+  id: number;
+  members: User[];
   messages: Message[];
-  isGroup: boolean;
-  name?: string;
+  groupName: string;
 }

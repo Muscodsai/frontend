@@ -7,7 +7,7 @@ const HomePage = () => {
             title: 'The Future of Web Development',
             excerpt: 'Exploring the latest trends and technologies shaping the web...',
             author: 'Sarah Johnson',
-            coverImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
+            cover: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
             readTime: 5,
             likes: 234,
         },
@@ -25,7 +25,7 @@ const HomePage = () => {
                         className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
                     >
                         <img
-                            src={post.coverImage}
+                            src={post.cover}
                             alt={post.title}
                             className="w-full h-64 object-cover"
                         />

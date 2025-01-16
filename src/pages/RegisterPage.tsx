@@ -8,7 +8,7 @@ import {SHA256} from "crypto-js"
 import {popup} from "../utils/popup.ts";
 
 const registerSchema = z.object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
+    name: z.string().min(1, 'Username is required'),
     email: z.string().email('Invalid email address'),
     password: z.string()
         .min(8, 'Password must be at least 8 characters')
@@ -75,7 +75,7 @@ const RegisterPage = () => {
             <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                        Full name
+                        Username
                     </label>
                     <div className="mt-1">
                         <input

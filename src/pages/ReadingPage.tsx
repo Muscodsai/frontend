@@ -1,34 +1,57 @@
 import {useParams} from 'react-router-dom';
-import {Bookmark, MessageCircle, Share2, ThumbsUp} from '../asserts/icons';
+import {Bookmark, Bookmarked, MessageCircle, Share2, ThumbsUp} from '../asserts/icons';
 import {server} from "../utils/address.ts";
 import {useEffect, useState} from "react";
 import {popup} from "../utils/popup.ts";
+import {bookmark} from "../hooks/bookmark.ts";
+import {readCookies} from "../utils/cookies.ts";
 
 const ReadingPage = () => {
     const {id} = useParams();
-    const [loading, setLoading] = useState<boolean>(true);
+    const cookies = readCookies();
+    const userId = cookies.id;
+    const [loadingUser, setLoadingUser] = useState<boolean>(true);
+    const [loadingArticle, setLoadingArticle] = useState<boolean>(true);
     const [post, setPost] = useState<any>({
         id,
         title: '',
         content: '',
-        coverImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',  // STUB!
+        cover: '',
         author: {
             name: '',
-            avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',  // STUB!
-            bio: 'Tech writer and web developer'  // STUB!
+            avatar: '',
+            bio: ''
         },
-        publishedAt: '',
-        readTime: 5,  // STUB!
+        publishedTime: '',
+        readTime: 0,
         likes: 0
     });
+    const [bookmarked, setBookmarked] = useState<boolean>(false);
 
     useEffect(() => {
+        const getInitialState = async (): Promise<boolean> => {
+            try {
+                const response = await fetch(`${server}/v1/user/${userId}`, {
+                    method: 'GET'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    setLoadingUser(false);
+                    return result.library.indexOf(parseInt(`${id}`)) > -1;
+                } else {
+                    popup(result.error);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+            }
+            return false;
+        }
 
         const getAuthor = async (uid: number) => {
-            let author: any = {
-                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',  // STUB!
-                bio: 'Tech writer and web developer'  // STUB!
-            };
+            let author: any = {};
             try {
                 const response = await fetch(`${server}/v1/user/${uid}`, {
                     method: 'GET'
@@ -38,6 +61,8 @@ const ReadingPage = () => {
 
                 if (response.ok) {
                     author.name = result.username;
+                    author.avatar = result.avatar;
+                    author.bio = result.bio;
                 } else {
                     popup(result.error);
                 }
@@ -59,11 +84,12 @@ const ReadingPage = () => {
                 if (response.ok) {
                     post.title = result.title;
                     post.content = result.content;
-                    post.publishedAt = result.initialCreateTime;
-                    post.readTime = result.initialReadTime;
-                    post.likes = result.likes.length;
+                    post.publishedTime = result.publishTime;
+                    post.readTime = result.readTime;
+                    post.likes = result.likes;
                     post.author = await getAuthor(result.author);
-                    setLoading(false);
+                    post.cover = result.cover;
+                    setLoadingArticle(false);
                     return post;
                 } else {
                     popup(result.error);
@@ -73,10 +99,17 @@ const ReadingPage = () => {
                 popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
             }
         }
-        getArticle().then((post) => {setPost(post);});
+
+        const init = async () => {
+            const [bookmark, post] = await Promise.all([getInitialState(), getArticle()]);
+            setBookmarked(bookmark);
+            setPost(post);
+        }
+
+        init().then();
     }, []);
 
-    if (loading) {
+    if (loadingUser || loadingArticle) {
         console.time("Loading...");
     }
     console.timeEnd("Loading...");
@@ -107,8 +140,11 @@ const ReadingPage = () => {
                     <button className="text-gray-500 hover:text-gray-700">
                         <Share2 className="w-5 h-5"/>
                     </button>
-                    <button className="text-gray-500 hover:text-gray-700">
-                        <Bookmark className="w-5 h-5"/>
+                    <button className="text-gray-500 hover:text-gray-700" onClick={async () => await bookmark(bookmarked, setBookmarked, post.id, userId)}>
+                        { bookmarked?
+                            <Bookmarked className="w-5 h-5"/>:
+                            <Bookmark className="w-5 h-5"/>
+                        }
                     </button>
                 </div>
             </div>

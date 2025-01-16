@@ -10,7 +10,7 @@ const ChatList = ({ chats, activeChat, onSelectChat }: ChatListProps) => {
   return (
     <div className="space-y-2">
       {chats.map((chat) => {
-        const participant = chat.participants[0];
+        const participant = chat.members[0];
         const lastMessage = chat.messages[chat.messages.length - 1];
 
         return (
@@ -23,11 +23,11 @@ const ChatList = ({ chats, activeChat, onSelectChat }: ChatListProps) => {
           >
             <img
               src={participant.avatar}
-              alt={participant.name}
+              alt={participant.username}
               className="w-12 h-12 rounded-full object-cover"
             />
             <div className="flex-1 text-left">
-              <h3 className="font-medium">{participant.name}</h3>
+              <h3 className="font-medium">{participant.username}</h3>
               {lastMessage && (
                 <p className="text-sm text-gray-500 truncate">
                   {lastMessage.content}

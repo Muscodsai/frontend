@@ -1,55 +1,90 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import PostCard from '../components/post/PostCard';
 import {BookOpen, Layers} from '../asserts/icons';
+import {readCookies} from "../utils/cookies.ts";
+import {server} from "../utils/address.ts";
+import {popup} from "../utils/popup.ts";
 
 const LibraryPage = () => {
     const [activeTab, setActiveTab] = useState<'series' | 'single'>('single');
+    const cookies = readCookies();
+    const id = cookies.id;
+    const [loading, setLoading] = useState<boolean>(true);
+    const [articles, setArticles] = useState<any[]>([]);
+    const [series, setSeries] = useState<any[]>([]);
+    let tempArticles: any = {};
+    let tempSeries: any = {}
 
-    // Mock data - in a real app, this would come from an API
-    const savedPosts = [
-        {
-            id: '1',
-            title: 'The Future of Web Development',
-            content: 'Exploring the latest trends and technologies shaping the web...',
-            coverImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
-            author: {
-                id: '1',
-                name: 'Sarah Johnson',
-                email: 'sarah@example.com',
-                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
-                bio: 'Tech writer and web developer',
-                following: 1200,
-                followers: 800
-            },
-            publishedAt: '2024-03-15',
-            readTime: 5,
-            likes: 234,
-            isSeries: false
+    function toArray(obj: any, maxIndex: number) {
+        const array = [];
+        for (let i = 0; i < maxIndex; i++) {
+            obj[i] ? array.push(obj[i]) : null;
         }
-    ];
+        return array;
+    }
 
-    const savedSeries = [
-        {
-            id: '2',
-            title: 'Complete Guide to React',
-            content: 'A comprehensive guide to modern React development...',
-            coverImage: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee',
-            author: {
-                id: '2',
-                name: 'John Doe',
-                email: 'john@example.com',
-                avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-                bio: 'Senior React Developer',
-                following: 900,
-                followers: 600
-            },
-            publishedAt: '2024-03-10',
-            readTime: 25,
-            likes: 567,
-            isSeries: true,
-            seriesName: 'React Mastery'
+    useEffect(() => {
+        const getArticle = async (indexInLibrary: number, articleId: number) => {
+            try {
+                let post: any = {};
+                const response = await fetch(`${server}/v1/article/${articleId}`, {
+                    method: 'GET'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    post.id = result.id;
+                    post.title = result.title;
+                    post.content = result.content;
+                    post.author = result.author;
+                    post.publishedTime = result.publishTime;
+                    post.likes = result.likes;
+                    post.isSeries = result.isSeries;
+                    post.readTime = result.readTime;
+                    post.cover = result.cover;
+
+                    (post.isSeries ? tempSeries: tempArticles)[indexInLibrary] = post;
+                } else {
+                    popup(result.error);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+            }
         }
-    ];
+
+        const getUser = async () => {
+            try {
+                const response = await fetch(`${server}/v1/user/${id}`, {
+                    method: 'GET'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    let postsPromise: any[] = [];
+                    for (let i = 0; i < result.library.length; i++) {
+                        postsPromise.push(getArticle(i, result.library[i]));
+                    }
+                    await Promise.all(postsPromise);
+                    setArticles(toArray(tempArticles, result.library.length));
+                    setSeries(toArray(tempSeries, result.library.length));
+                    setLoading(false);
+                } else {
+                    popup(result.error);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+            }
+        }
+        getUser().then(() => {});
+    }, []);
+
+    if (loading) {
+        return <p>Loading...</p>;
+    }
 
     return (
         <div className="max-w-5xl mx-auto">
@@ -82,8 +117,8 @@ const LibraryPage = () => {
 
             <div className="grid gap-8">
                 {activeTab === 'single'
-                    ? savedPosts.map(post => <PostCard key={post.id} post={post}/>)
-                    : savedSeries.map(series => <PostCard key={series.id} post={series}/>)
+                    ? articles.map(post => <PostCard key={post.id} post={post} userId={id} state={true}/>)
+                    : series.map(series => <PostCard key={series.id} post={series} userId={id} state={true}/>)
                 }
             </div>
         </div>

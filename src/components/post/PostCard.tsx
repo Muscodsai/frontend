@@ -1,17 +1,23 @@
-import { ThumbsUp, Bookmark } from '../../asserts/icons';
+import {ThumbsUp, Bookmark, BookOpen, Bookmarked} from '../../asserts/icons';
 import { Link } from 'react-router-dom';
-import type { Post } from '../../types';
+import type { Article } from '../../types';
+import {useState} from "react";
+import {bookmark} from "../../hooks/bookmark.ts";
+
 
 interface PostCardProps {
-    post: Post;
+    post: Article;
+    userId: number;
+    state: boolean;
     showFullContent?: boolean;
 }
 
-const PostCard = ({ post, showFullContent = false }: PostCardProps) => {
+const PostCard = ({ post, userId, state, showFullContent = false }: PostCardProps) => {
+    const [bookmarked, setBookmarked] = useState<boolean>(state);
     return (
         <article className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
             <img
-                src={post.coverImage}
+                src={post.cover}
                 alt={post.title}
                 className="w-full h-64 object-cover"
             />
@@ -22,10 +28,10 @@ const PostCard = ({ post, showFullContent = false }: PostCardProps) => {
                 <div className="flex items-center space-x-3 mb-4">
                     <img
                         src={post.author.avatar}
-                        alt={post.author.name}
+                        alt={post.author.username}
                         className="w-8 h-8 rounded-full"
                     />
-                    <span className="text-gray-600">{post.author.name}</span>
+                    <span className="text-gray-600">{post.author.username}</span>
                 </div>
                 <p className="text-gray-600 mb-4">
                     {showFullContent ? post.content : `${post.content.slice(0, 150)}...`}
@@ -34,7 +40,7 @@ const PostCard = ({ post, showFullContent = false }: PostCardProps) => {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
             <span className="flex items-center text-gray-500">
-              <Bookmark className="w-4 h-4 mr-1" />
+              <BookOpen className="w-4 h-4 mr-1"  />
                 {post.readTime} min read
             </span>
                         <span className="flex items-center text-gray-500">
@@ -42,8 +48,12 @@ const PostCard = ({ post, showFullContent = false }: PostCardProps) => {
                             {post.likes}
             </span>
                     </div>
-                    <button className="text-gray-500 hover:text-gray-700">
-                        <Bookmark className="w-5 h-5" />
+                    <button onClick={async () => await bookmark(bookmarked, setBookmarked, post.id, userId)} className="text-gray-500 hover:text-gray-700">
+                        {
+                            bookmarked
+                            ? <Bookmarked className="w-5 h-5" />
+                            : <Bookmark className="w-5 h-5" />
+                        }
                     </button>
                 </div>
             </div>

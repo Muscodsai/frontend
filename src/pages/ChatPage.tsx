@@ -9,39 +9,7 @@ const ChatPage = () => {
     const [chatType, setChatType] = useState<'private' | 'group'>('private');
 
     // Mock data - in a real app, this would come from an API
-    const chats: Chat[] = [
-        {
-            id: '1',
-            participants: [
-                {
-                    id: '2',
-                    name: 'John Doe',
-                    email: 'john@example.com',
-                    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-                    bio: 'Software Engineer',
-                    following: 500,
-                    followers: 300,
-                },
-            ],
-            messages: [
-                {
-                    id: '1',
-                    content: 'Hey, I loved your article about React hooks!',
-                    sender: {
-                        id: '2',
-                        name: 'John Doe',
-                        email: 'john@example.com',
-                        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-                        bio: 'Software Engineer',
-                        following: 500,
-                        followers: 300,
-                    },
-                    timestamp: '2024-03-15T10:30:00Z',
-                },
-            ],
-            isGroup: false,
-        },
-    ];
+    const chats: Chat[] = [];
 
     return (
         <div className="flex h-screen -m-8">
@@ -81,7 +49,7 @@ const ChatPage = () => {
                     </div>
 
                     <ChatList
-                        chats={chats.filter((chat) => chat.isGroup === (chatType === 'group'))}
+                        chats={chats.filter((chat) => (chat.members.length === 2) === (chatType === 'group'))}
                         activeChat={activeChat}
                         onSelectChat={setActiveChat}
                     />

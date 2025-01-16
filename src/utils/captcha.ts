@@ -1,3 +1,7 @@
 export async function captcha(): Promise<boolean> {
-    return true;
+    let isHuman = false;
+    for (let attempt = 0; attempt < 5 && !(isHuman = await (async () => {
+        return true;  // STUB! replace with captcha api here
+    })()); attempt++) {}
+    return isHuman;
 }

@@ -56,11 +56,11 @@ const SettingsPage: React.FC = () => {
                 res.json().then((userData) => {
                     if (res.ok) {
                         reset({
-                            name: `${userData.nameFirst || ""} ${userData.nameLast || ""}`,
+                            name: userData.username || "",
                             email: userData.email || "",
                             bio: userData.bio || "",
                             avatar: userData.avatar || "",
-                            emailNotifications: userData.notifications || {
+                            emailNotifications: userData.emailPreference || {
                                 newFollower: false,
                                 newComment: false,
                                 newMessage: false,
@@ -88,62 +88,39 @@ const SettingsPage: React.FC = () => {
 
     const onSubmit = async (data: SettingsFormData) => {
         try {
-            if (data.name.split(" ").length > 2)
-                return popup("Use at most 1 space to separate your firstname and lastname");
-            const [nameFirst, nameLast] = data.name.split(" ");
-
-            const updateNames = fetch(`${server}/v1/user/update`, {
+            const res = await fetch(`${server}/v1/user/update`, {
                 method: "PUT",
                 headers: {
                     'Content-Type': 'application/json',  // Set the correct content type
                 },
                 body: JSON.stringify({
+                    userId: userId,
+                    avatar: data.avatar,
                     username: data.name,
-                    nameFirst: nameFirst,
-                    nameLast: nameLast,
-                    userId: userId,
-                })
-            });
-            const updateEmail = fetch(`${server}/v1/user/email`, {
-                method: "PUT",
-                headers: {
-                    'Content-Type': 'application/json',  // Set the correct content type
-                },
-                body: JSON.stringify({
-                    newEmail: data.email,
-                    userId: userId,
-                })
-            });
-            const updateNotifications = fetch(`${server}/v1/user/notifications`, {
-                method: "PUT",
-                headers: {
-                    'Content-Type': 'application/json',  // Set the correct content type
-                },
-                body: JSON.stringify({
-                    userId,
-                    emailNotifications: data.emailNotifications,
+                    bio: data.bio,
+                    email: data.email,
+                    preference: data.emailNotifications
                 })
             });
 
-            let errors = [];
-            for (let res of await Promise.all([updateNames, updateEmail, updateNotifications])) {
-                if (!res.ok) {
-                    try {
-                        const userData = await res.json();
-                        errors.push(`Status code ${res.status} (${res.statusText}): ${userData.error}`);
-                    } catch (error) {
-                        errors.push(`${res.url} responded ${res.status}`);
-                    }
+            let error = ``;
+            if (!res.ok) {
+                try {
+                    const userData = await res.json();
+                    error=`Status code ${res.status} (${res.statusText}): ${userData.error}`;
+                } catch (err) {
+                    error=`${res.url} responded ${res.status}`;
                 }
             }
-            if (errors.length > 0) {
-                console.error(errors);
-                popup("Failed to update settings.\n\n" + errors.join("\n"));
+
+            if (error) {
+                console.error(error);
+                popup("Failed to update all settings:\n\n" + error);
             } else {
                 popup("Settings updated successfully!");
             }
-        } catch (error) {
-            console.error("Error updating settings:", error);
+        } catch (err) {
+            console.error("Error updating settings:", err);
             popup("Failed to update settings.");
         }
     };
