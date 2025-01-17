@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Library, PenSquare, MessageCircle, User, Settings} from "../../asserts/icons"
+import {Home, Library, PenSquare, MessageCircle, User, Settings, OAText} from "../../asserts/icons"
 
 const Sidebar = () => {
   const navItems = [
@@ -14,7 +14,10 @@ const Sidebar = () => {
   return (
     <div className="fixed left-0 h-screen w-64 bg-white border-r border-gray-200 p-4">
       <div className="flex flex-col space-y-6">
-        <h1 className="text-2xl font-bold text-gray-800">ReadHub</h1>
+        <div className="flex flex-row items-center space-x-2 pl-4 pt-4">
+          <OAText className="w-8 h-8"/>
+          <h1 className="text-2xl font-bold text-gray-800">OAText</h1>
+        </div>
         <nav className="flex flex-col space-y-2">
           {navItems.map((item) => (
             <NavLink

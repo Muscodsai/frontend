@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Search, Users} from '../asserts/icons';
+import {Search, User, Users} from '../asserts/icons';
 import ChatList from '../components/chat/ChatList';
 import ChatWindow from '../components/chat/ChatWindow';
 import type {Chat} from '../types';
@@ -18,14 +18,16 @@ const ChatPage = () => {
                     <div className="flex space-x-2 mb-4">
                         <button
                             onClick={() => setChatType('private')}
-                            className={`flex-1 py-2 px-4 rounded-lg ${
+                            className={`flex-1 py-2 px-4 rounded-lg flex items-center justify-center space-x-2 ${
                                 chatType === 'private'
                                     ? 'bg-gray-900 text-white'
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                         >
-                            Private
+                            <User className="w-4 h-4"/>
+                            <span>Private</span>
                         </button>
+
                         <button
                             onClick={() => setChatType('group')}
                             className={`flex-1 py-2 px-4 rounded-lg flex items-center justify-center space-x-2 ${

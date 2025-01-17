@@ -6,6 +6,8 @@ import {server} from "../utils/address.ts";
 import {readCookies} from "../utils/cookies.ts";
 import {popup} from "../utils/popup.ts";
 import {useNavigate} from "react-router-dom";
+import {useState} from "react";
+import {Loading} from "../asserts/loading.tsx";
 
 const postSchema = z.object({
     title: z.string().min(1, 'Title is required').max(100, 'Your title is too long'),
@@ -29,8 +31,10 @@ const WritingPage = () => {
     const cookies = readCookies();
     const userId = cookies.id;
     const navigate = useNavigate();
+    const [publishing, setPublishing] = useState<boolean>(false);
 
     const onSubmit = async (data: PostFormData) => {
+        setPublishing(true);
         try {
             const response = await fetch(`${server}/v1/article/upload`, {
                 method: 'POST',
@@ -61,6 +65,7 @@ const WritingPage = () => {
             console.error(error);
             popup("Unable to Post Your Article, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
         }
+        setPublishing(false);
     };
 
     return (
@@ -68,11 +73,22 @@ const WritingPage = () => {
             <div className="flex items-center justify-between mb-8">
                 <h1 className="text-3xl font-bold">Write your story</h1>
                 <button
+                    disabled={publishing}
                     onClick={handleSubmit(onSubmit)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
+                    className="flex items-center space-x-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <Save className="w-5 h-5"/>
-                    <span>Publish</span>
+                    {
+                        publishing ?
+                            <div className="flex flex-row items-center space-x-2">
+                                <Loading message="" scale={0.2} color="#fff"/>
+                                <p className="text-nowrap">Publishing</p>
+                            </div>
+                            :
+                            <div className="flex flex-row items-center space-x-2">
+                                <Save className="w-5 h-5"/>
+                                <p className="text-nowrap">Publish</p>
+                            </div>
+                    }
                 </button>
             </div>
 

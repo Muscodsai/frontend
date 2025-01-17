@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { BookOpen } from '../../asserts/icons';
+import { ReactNode } from 'react';
+import { OAText } from '../../asserts/icons';
 
 interface AuthLayoutProps {
     children: ReactNode;
@@ -13,8 +13,8 @@ const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center">
                     <div className="flex items-center space-x-2">
-                        <BookOpen className="w-10 h-10 text-gray-900" />
-                        <span className="text-2xl font-bold text-gray-900">ReadHub</span>
+                        <OAText className="w-10 h-10 text-gray-900" />
+                        <span className="text-4xl font-bold text-gray-900">OAText</span>
                     </div>
                 </div>
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">

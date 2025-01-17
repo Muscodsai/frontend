@@ -3,9 +3,10 @@
  *
  * @param message the message that is being shown to the user while loading
  * @param scale the scale of the loading icon
+ * @param color the color of the dots
  * @param n the number of dots
  */
-export function Loading ({ message = "Loading...", scale = 1.0, n = 12 }: { message?: string; scale?: number; n?: number}) {
+export function Loading ({ message = "Loading...", scale = 1.0, color = "#000",  n = 12 }: { message?: string; scale?: number; color?: string; n?: number}) {
     return (
         <div className="flex items-center justify-center w-full h-full flex-col">
             <svg
@@ -27,7 +28,7 @@ export function Loading ({ message = "Loading...", scale = 1.0, n = 12 }: { mess
                             cx={x}
                             cy={y}
                             r={`${4.5*scale}`}
-                            fill="#000"
+                            fill={color}
                         >
                             <animate
                                 attributeName="fill-opacity"

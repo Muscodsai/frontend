@@ -9,10 +9,9 @@ interface PostCardProps {
     post: Article;
     userId: number;
     state: boolean;
-    showFullContent?: boolean;
 }
 
-const PostCard = ({ post, userId, state, showFullContent = false }: PostCardProps) => {
+const PostCard = ({ post, userId, state }: PostCardProps) => {
     const [bookmarked, setBookmarked] = useState<boolean>(state);
     return (
         <article className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
@@ -34,7 +33,7 @@ const PostCard = ({ post, userId, state, showFullContent = false }: PostCardProp
                     <span className="text-gray-600">{post.author.username}</span>
                 </div>
                 <p className="text-gray-600 mb-4">
-                    {showFullContent ? post.content : `${post.content.slice(0, 150)}...`}
+                    {post.content.length <= 150 ? post.content : `${post.content.slice(0, 150)}...`}
                 </p>
 
                 <div className="flex items-center justify-between">

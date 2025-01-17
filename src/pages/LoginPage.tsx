@@ -8,6 +8,7 @@ import {SHA256} from "crypto-js";
 import {clearCookies, readCookies, setCookies} from "../utils/cookies.ts";
 import {useEffect} from "react";
 import {popup} from "../utils/popup.ts";
+import {Loading} from "../asserts/loading.tsx";
 
 const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
@@ -152,7 +153,17 @@ const LoginPage = () => {
                         disabled={isSubmitting}
                         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isSubmitting ? 'Signing in...' : 'Sign in'}
+                        {
+                            isSubmitting ?
+                            <div className="flex flex-row items-center space-x-2">
+                                <Loading message="" scale={0.2} color="#fff"/>
+                                <p className="text-nowrap">Signing in</p>
+                            </div>
+                                :
+                            <div>
+                                <p className="text-nowrap">Sign in</p>
+                            </div>
+                        }
                     </button>
                 </div>
             </form>

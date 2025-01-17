@@ -6,6 +6,8 @@ import AuthLayout from '../components/auth/AuthLayout';
 import {server} from "../utils/address";
 import {SHA256} from "crypto-js"
 import {popup} from "../utils/popup.ts";
+import {Loading} from "../asserts/loading.tsx";
+import {clearCookies} from "../utils/cookies.ts";
 
 const registerSchema = z.object({
     name: z.string().min(1, 'Username is required'),
@@ -27,6 +29,7 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const RegisterPage = () => {
+    clearCookies();
     const navigate = useNavigate();
     const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<RegisterFormData>({
         resolver: zodResolver(registerSchema),
@@ -173,7 +176,17 @@ const RegisterPage = () => {
                         disabled={isSubmitting}
                         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isSubmitting ? 'Creating account...' : 'Create account'}
+                        {
+                            isSubmitting ?
+                                <div className="flex flex-row items-center space-x-2">
+                                    <Loading message="" scale={0.2} color="#fff"/>
+                                    <p className="text-nowrap">Creating account...</p>
+                                </div>
+                                :
+                                <div>
+                                    <p className="text-nowrap">Create account</p>
+                                </div>
+                        }
                     </button>
                 </div>
             </form>
