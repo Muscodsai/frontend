@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Save} from "../asserts/icons";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -7,6 +7,7 @@ import {server} from "../utils/address";
 import {clearCookies, readCookies} from "../utils/cookies"
 import {useNavigate} from "react-router-dom";
 import {popup} from "../utils/popup.ts";
+import {Loading} from "../asserts/loading.tsx";
 
 const settingsSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -47,6 +48,7 @@ const SettingsPage: React.FC = () => {
 
     const cookies = readCookies();
     const userId = cookies.id;
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         try {
@@ -66,22 +68,24 @@ const SettingsPage: React.FC = () => {
                                 newMessage: false,
                             },
                         });
+                        setLoading(false);
                     } else {
                         console.error(`Response code ${res.status}: ${userData.error}`);
                         clearCookies();
                         navigate("/login");
-                        popup("Authentication Failed, Please Login Again");
+                        popup("Unable to Fetch Your Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
                     }
                 });
             }).catch((error) => {
                 console.error("Failed to connect:", error);
-                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+                navigate("/login");
+                popup("Unable to Fetch Your Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
             });
         } catch (error) {
             console.error("Failed to fetch user details:", error);
             clearCookies();
             navigate("/login");
-            popup("Authentication Failed, Please Login Again");
+            popup("Unable to Fetch Your Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
         }
     }, [reset, userId]);
 
@@ -124,6 +128,10 @@ const SettingsPage: React.FC = () => {
             popup("Failed to update settings.");
         }
     };
+
+    if (loading) {
+        return <Loading/>;
+    }
 
     return (
         <div className="max-w-2xl mx-auto" /* Add some margin (especially marginTop) */ >

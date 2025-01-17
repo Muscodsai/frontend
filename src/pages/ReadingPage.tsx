@@ -1,14 +1,16 @@
-import {useParams} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import {Bookmark, Bookmarked, MessageCircle, Share2, ThumbsUp} from '../asserts/icons';
 import {server} from "../utils/address.ts";
 import {useEffect, useState} from "react";
 import {popup} from "../utils/popup.ts";
 import {bookmark} from "../hooks/bookmark.ts";
 import {readCookies} from "../utils/cookies.ts";
+import {Loading} from "../asserts/loading.tsx";
 
 const ReadingPage = () => {
     const {id} = useParams();
     const cookies = readCookies();
+    const navigate = useNavigate();
     const userId = cookies.id;
     const [loadingUser, setLoadingUser] = useState<boolean>(true);
     const [loadingArticle, setLoadingArticle] = useState<boolean>(true);
@@ -41,11 +43,13 @@ const ReadingPage = () => {
                     setLoadingUser(false);
                     return result.library.indexOf(parseInt(`${id}`)) > -1;
                 } else {
+                    navigate("/login");
                     popup(result.error);
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+                navigate("/login");
+                popup("Unable to Fetch Your Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
             }
             return false;
         }
@@ -64,11 +68,13 @@ const ReadingPage = () => {
                     author.avatar = result.avatar;
                     author.bio = result.bio;
                 } else {
+                    navigate("/");
                     popup(result.error);
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+                navigate("/");
+                popup("Unable to Fetch Author's Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
             }
             return author;
         }
@@ -92,11 +98,13 @@ const ReadingPage = () => {
                     setLoadingArticle(false);
                     return post;
                 } else {
+                    navigate("/");
                     popup(result.error);
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+                console.error(error);
+                navigate("/");
+                popup("Unable to Access the Article, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
             }
         }
 
@@ -111,6 +119,7 @@ const ReadingPage = () => {
 
     if (loadingUser || loadingArticle) {
         console.time("Loading...");
+        return <Loading/>
     }
     console.timeEnd("Loading...");
     return (

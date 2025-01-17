@@ -4,23 +4,27 @@ import {BookOpen, Layers} from '../asserts/icons';
 import {readCookies} from "../utils/cookies.ts";
 import {server} from "../utils/address.ts";
 import {popup} from "../utils/popup.ts";
+import {Loading} from "../asserts/loading.tsx";
+import {useNavigate} from "react-router-dom";
 
 const LibraryPage = () => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'series' | 'single'>('single');
     const cookies = readCookies();
     const id = cookies.id;
     const [loading, setLoading] = useState<boolean>(true);
     const [articles, setArticles] = useState<any[]>([]);
     const [series, setSeries] = useState<any[]>([]);
-    let tempArticles: any = {};
-    let tempSeries: any = {}
+    let library: any[];
 
-    function toArray(obj: any, maxIndex: number) {
-        const array = [];
-        for (let i = 0; i < maxIndex; i++) {
-            obj[i] ? array.push(obj[i]) : null;
+    function classify() {
+        let articles: any[] = [];
+        let series: any[] = [];
+        for (let post of library) {
+            post.isSeries ? series.push(post) : articles.push(post);
         }
-        return array;
+        setArticles(articles);
+        setSeries(series);
     }
 
     useEffect(() => {
@@ -44,13 +48,15 @@ const LibraryPage = () => {
                     post.readTime = result.readTime;
                     post.cover = result.cover;
 
-                    (post.isSeries ? tempSeries: tempArticles)[indexInLibrary] = post;
+                    library[indexInLibrary] = post;
                 } else {
+                    navigate("/");
                     popup(result.error);
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+                console.error(error);
+                navigate("/");
+                popup("Unable to Fetch Article Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
             }
         }
 
@@ -64,26 +70,29 @@ const LibraryPage = () => {
 
                 if (response.ok) {
                     let postsPromise: any[] = [];
+                    library = new Array<any>(result.library.length);
                     for (let i = 0; i < result.library.length; i++) {
                         postsPromise.push(getArticle(i, result.library[i]));
                     }
                     await Promise.all(postsPromise);
-                    setArticles(toArray(tempArticles, result.library.length));
-                    setSeries(toArray(tempSeries, result.library.length));
+                    classify();
                     setLoading(false);
                 } else {
+                    navigate("/login");
                     popup(result.error);
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+                console.error(error);
+                navigate("/login");
+                popup("Unable to Fetch Your Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+
             }
         }
         getUser().then(() => {});
     }, []);
 
     if (loading) {
-        return <p>Loading...</p>;
+        return <Loading />;
     }
 
     return (
@@ -116,7 +125,8 @@ const LibraryPage = () => {
             </div>
 
             <div className="grid gap-8">
-                {activeTab === 'single'
+                {
+                    activeTab === 'single'
                     ? articles.map(post => <PostCard key={post.id} post={post} userId={id} state={true}/>)
                     : series.map(series => <PostCard key={series.id} post={series} userId={id} state={true}/>)
                 }

@@ -1,12 +1,14 @@
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {Edit, Users} from '../asserts/icons';
 import PostCard from '../components/post/PostCard';
 import {useEffect, useState} from "react";
 import {server} from "../utils/address.ts";
 import {readCookies} from "../utils/cookies.ts";
 import {popup} from "../utils/popup.ts";
+import {Loading} from "../asserts/loading.tsx";
 
 const ProfilePage = () => {
+    const navigate = useNavigate();
     const cookies = readCookies();
     const id = cookies.id;
     const [user, setUser] = useState<any>({id: id})
@@ -37,11 +39,13 @@ const ProfilePage = () => {
                     post.state = user.library.indexOf(post.id) > -1;
                     return post;
                 } else {
+                    navigate("/");
                     popup(result.error);
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+                console.error(error);
+                navigate("/");
+                popup("Unable to Fetch Article Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
             }
         }
 
@@ -70,18 +74,20 @@ const ProfilePage = () => {
                     setPost(await Promise.all(postsPromise));
                     setLoading(false);
                 } else {
+                    navigate("/login");
                     popup(result.error);
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+                console.error(error);
+                navigate("/login");
+                popup("Unable to Fetch Your Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
             }
         }
         getUser().then(() => {});
     }, []);
 
     if (loading) {
-        return <p>Loading...</p>;
+        return <Loading/>;
     }
 
     return (

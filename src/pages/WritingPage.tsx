@@ -5,6 +5,7 @@ import {Image, Save} from '../asserts/icons';
 import {server} from "../utils/address.ts";
 import {readCookies} from "../utils/cookies.ts";
 import {popup} from "../utils/popup.ts";
+import {useNavigate} from "react-router-dom";
 
 const postSchema = z.object({
     title: z.string().min(1, 'Title is required').max(100, 'Your title is too long'),
@@ -27,6 +28,7 @@ const WritingPage = () => {
 
     const cookies = readCookies();
     const userId = cookies.id;
+    const navigate = useNavigate();
 
     const onSubmit = async (data: PostFormData) => {
         try {
@@ -50,13 +52,14 @@ const WritingPage = () => {
             const result = await response.json();
 
             if (response.ok) {
+                navigate("/profile");
                 popup("Upload Successfully");
             } else {
                 popup(result.error);
             }
         } catch (error) {
-            console.error('Login error:', error);
-            popup("Server Unreachable, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
+            console.error(error);
+            popup("Unable to Post Your Article, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.")
         }
     };
 
