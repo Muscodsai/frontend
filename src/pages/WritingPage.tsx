@@ -36,23 +36,41 @@ const WritingPage = () => {
     const onSubmit = async (data: PostFormData) => {
         setPublishing(true);
         try {
-            const response = await fetch(`${server}/v1/article/upload`, {
-                method: 'POST',
+            // const response = await fetch(`${server}/v1/article/upload`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',  // Set the correct content type
+            //     },
+            //     body: JSON.stringify({
+            //         session: userId,  // use userId as session for now; when replacing with the actual session, remember to update getAuthorName method in article.js in backend.
+            //         title: data.title,
+            //         summary: data.summary,
+            //         content: data.content,
+            //         long: data.isSeries,
+            //         price: null,  // some further info about the article; to be used in the future.
+            //         tags: null,
+            //         preId: -1,
+            //     })
+            // });
+
+            const response = await fetch(`${server}/v2/article/upload/-1`, {
+                method: "POST",
                 headers: {
                     'Content-Type': 'application/json',  // Set the correct content type
                 },
                 body: JSON.stringify({
-                    session: userId,  // use userId as session for now; when replacing with the actual session, remember to update getAuthorName method in article.js in backend.
-                    title: data.title,
-                    summary: data.summary,
-                    content: data.content,
-                    long: data.isSeries,
-                    price: null,  // some further info about the article; to be used in the future.
-                    tags: null,
-                    preId: -1,
+                    requestFields: {
+                        session: userId,  // use userId as session for now; when replacing with the actual session, remember to update getAuthorName method in article.js in backend.
+                        title: data.title,
+                        summary: data.summary,
+                        content: data.content,
+                        long: data.isSeries,
+                        price: null,  // some further info about the article; to be used in the future.
+                        tags: null,
+                        preId: -1,},
+                    responseFields: [],
                 })
             });
-
             const result = await response.json();
 
             if (response.ok) {

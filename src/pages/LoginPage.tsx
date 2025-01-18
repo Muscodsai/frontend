@@ -47,16 +47,29 @@ const LoginPage = () => {
 
     const onSubmit = async (data: LoginFormData) => {
         try {
-            const response = await fetch(`${server}/v1/signin`, {
-                method: 'POST',
+            const response = await fetch(`${server}/v2/auth/login/-1`, {
+                method: "POST",
                 headers: {
                     'Content-Type': 'application/json',  // Set the correct content type
                 },
                 body: JSON.stringify({
-                    email: data.email,
-                    password: SHA256(data.password).toString(),
+                    requestFields: {
+                        email: data.email,
+                        password: SHA256(data.password).toString(),
+                    },
+                    responseFields: [],
                 })
             });
+            // const response = await fetch(`${server}/v1/signin`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',  // Set the correct content type
+            //     },
+            //     body: JSON.stringify({
+            //         email: data.email,
+            //         password: SHA256(data.password).toString(),
+            //     })
+            // });
 
             const result = await response.json();
 

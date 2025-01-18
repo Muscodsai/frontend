@@ -37,15 +37,29 @@ const RegisterPage = () => {
 
     const onSubmit = async (data: RegisterFormData) => {
         try {
-            const response = await fetch(`${server}/v1/signup`, {
+            // const response = await fetch(`${server}/v1/signup`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',  // Set the correct content type
+            //     },
+            //     body: JSON.stringify({
+            //         email: data.email,
+            //         username: data.name,
+            //         password: SHA256(data.password).toString(),
+            //     })
+            // });
+            const response = await fetch(`${server}/v2/auth/signup/-1`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',  // Set the correct content type
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    email: data.email,
-                    username: data.name,
-                    password: SHA256(data.password).toString(),
+                    requestFields: {
+                        email: data.email,
+                        username: data.name,
+                        password: SHA256(data.password).toString(),
+                    },
+                    responseFields: [],
                 })
             });
 

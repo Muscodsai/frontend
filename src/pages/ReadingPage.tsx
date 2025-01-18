@@ -1,4 +1,4 @@
-import {useNavigate, useParams} from 'react-router-dom';
+import {Link, useNavigate, useParams} from 'react-router-dom';
 import {Bookmark, Bookmarked, MessageCircle, Share2, ThumbsUp} from '../asserts/icons';
 import {server} from "../utils/address.ts";
 import {useEffect, useState} from "react";
@@ -33,8 +33,18 @@ const ReadingPage = () => {
     useEffect(() => {
         const getInitialState = async (): Promise<boolean> => {
             try {
-                const response = await fetch(`${server}/v1/user/${userId}`, {
-                    method: 'GET'
+                // const response = await fetch(`${server}/v1/user/${userId}`, {
+                //     method: 'GET'
+                // });
+                const response = await fetch(`${server}/v2/user/get/${userId}`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',  // Set the correct content type
+                    },
+                    body: JSON.stringify({
+                        requestFields: {},
+                        responseFields: ["library"],
+                    })
                 });
 
                 const result = await response.json();
@@ -57,13 +67,25 @@ const ReadingPage = () => {
         const getAuthor = async (uid: number) => {
             let author: any = {};
             try {
-                const response = await fetch(`${server}/v1/user/${uid}`, {
-                    method: 'GET'
+                // const response = await fetch(`${server}/v1/user/${uid}`, {
+                //     method: 'GET'
+                // });
+
+                const response = await fetch(`${server}/v2/user/get/${uid}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        requestFields: {},
+                        responseFields: ["username", "avatar", "bio"],
+                    })
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
+                    author.id = uid;
                     author.name = result.username;
                     author.avatar = result.avatar;
                     author.bio = result.bio;
@@ -81,8 +103,18 @@ const ReadingPage = () => {
 
         const getArticle = async () => {
             try {
-                const response = await fetch(`${server}/v1/article/${id}`, {
-                    method: 'GET'
+                // const response = await fetch(`${server}/v1/article/${id}`, {
+                //     method: 'GET'
+                // });
+                const response = await fetch(`${server}/v2/article/get/${id}`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',  // Set the correct content type
+                    },
+                    body: JSON.stringify({
+                        requestFields: {},
+                        responseFields: ["title", "content", "publishedTime", "readTime", "likes", "author", "cover"],
+                    })
                 });
 
                 const result = await response.json();
@@ -125,7 +157,7 @@ const ReadingPage = () => {
     return (
         <div className="max-w-3xl mx-auto">
             <img
-                src={post.coverImage}
+                src={post.cover}
                 alt={post.title}
                 className="w-full h-96 object-cover rounded-lg mb-8"
             />
@@ -133,17 +165,19 @@ const ReadingPage = () => {
             <h1 className="text-4xl font-bold mb-6">{post.title}</h1>
 
             <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center space-x-4">
-                    <img
-                        src={post.author.avatar}
-                        alt={post.author.name}
-                        className="w-12 h-12 rounded-full"
-                    />
-                    <div>
-                        <h3 className="font-medium">{post.author.name}</h3>
-                        <p className="text-sm text-gray-500">{post.author.bio}</p>
+                <Link to={`/profile/${post.author.id}`}>
+                    <div className="flex items-center space-x-4">
+                        <img
+                            src={post.author.avatar}
+                            alt={post.author.name}
+                            className="w-12 h-12 rounded-full"
+                        />
+                        <div>
+                            <h3 className="font-medium hover:underline">{post.author.name}</h3>
+                            <p className="text-sm text-gray-500">{post.author.bio}</p>
+                        </div>
                     </div>
-                </div>
+                </Link>
 
                 <div className="flex items-center space-x-4">
                     <button className="text-gray-500 hover:text-gray-700">

@@ -24,6 +24,7 @@ function App() {
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/write" element={<WritingPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/:id" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/chat" element={<ChatPage />} />
           </Route>

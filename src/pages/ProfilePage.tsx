@@ -1,4 +1,4 @@
-import {Link, useNavigate} from 'react-router-dom';
+import {Link, useNavigate, useParams} from 'react-router-dom';
 import {Edit, Users} from '../asserts/icons';
 import PostCard from '../components/post/PostCard';
 import {useEffect, useState} from "react";
@@ -8,10 +8,11 @@ import {popup} from "../utils/popup.ts";
 import {Loading} from "../asserts/loading.tsx";
 
 const ProfilePage = () => {
-    const navigate = useNavigate();
     const cookies = readCookies();
-    const id = cookies.id;
-    const [user, setUser] = useState<any>({id: id})
+    const loginUserId = cookies.id;
+    let profileUserId = parseInt(useParams().id || loginUserId);
+    const navigate = useNavigate();
+    const [user, setUser] = useState<any>();
     const [userPosts, setPost] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -19,14 +20,24 @@ const ProfilePage = () => {
         const getArticle = async (articleId: number, user: any) => {
             try {
                 let post: any = {};
-                const response = await fetch(`${server}/v1/article/${articleId}`, {
-                    method: 'GET'
+                // const response = await fetch(`${server}/v1/article/${articleId}`, {
+                //     method: 'GET'
+                // });
+                const response = await fetch(`${server}/v2/article/get/${articleId}`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',  // Set the correct content type
+                    },
+                    body: JSON.stringify({
+                        requestFields: {},
+                        responseFields: ["title", "content", "publishTime", "likes", "isSeries", "readTime", "cover"],
+                    })
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
-                    post.id = result.id;
+                    post.id = articleId;
                     post.title = result.title;
                     post.content = result.content;
                     post.author = user;
@@ -50,29 +61,36 @@ const ProfilePage = () => {
         }
 
         const getUser = async () => {
-            let userInfo: any = {};
+            let user: any = {};
             try {
-                const response = await fetch(`${server}/v1/user/${id}`, {
-                    method: 'GET'
+                // const response = await fetch(`${server}/v1/user/${profileUserId}`, {
+                //     method: 'GET'
+                // });
+                const response = await fetch(`${server}/v2/user/get/${profileUserId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        requestFields: {},
+                        responseFields: ["username", "email", "followers", "following", "avatar", "bio", "library", "publications"],
+                    })
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
-                    userInfo.name = result.username;
-                    userInfo.email = result.email;
-                    userInfo.followers = result.followers.length;
-                    userInfo.following = result.following.length;
-                    userInfo.avatar = result.avatar;
-                    userInfo.bio = result.bio;
-                    userInfo.library = result.library;
-                    setUser(userInfo);
-                    let postsPromise: any[] = [];
-                    for (let post of result.publications) {
-                        postsPromise.push(getArticle(post, userInfo));
-                    }
-                    setPost(await Promise.all(postsPromise));
-                    setLoading(false);
+                    user.id = profileUserId;
+                    user.username = result.username;
+                    user.email = result.email;
+                    user.followers = result.followers.length;
+                    user.following = result.following.length;
+                    user.avatar = result.avatar;
+                    user.bio = result.bio;
+                    user.library = result.library;
+                    user.publications = result.publications;
+                    setUser(user);
+                    return user;
                 } else {
                     navigate("/login");
                     popup(result.error);
@@ -83,7 +101,19 @@ const ProfilePage = () => {
                 popup("Unable to Fetch Your Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
             }
         }
-        getUser().then(() => {});
+
+        const init = async () => {
+            try {
+                const user = await getUser();
+                let postsPromise: any[] = [];
+                for (let post of user.publications) {
+                    postsPromise.push(getArticle(post, user));
+                }
+                setPost(await Promise.all(postsPromise));
+            } catch (ignore) {}  // already handled
+        }
+
+        init().then(() => { setLoading(false); });
     }, []);
 
     if (loading) {
@@ -97,40 +127,43 @@ const ProfilePage = () => {
                     <div className="flex items-center space-x-6">
                         <img
                             src={user.avatar}
-                            alt={user.name}
+                            alt={user.username}
                             className="w-24 h-24 rounded-full object-cover"
                         />
                         <div>
-                            <h1 className="text-3xl font-bold mb-2">{user.name}</h1>
+                            <h1 className="text-3xl font-bold mb-2">{user.username}</h1>
                             <p className="text-gray-600 mb-4">{user.bio}</p>
                             <div className="flex items-center space-x-6">
                                 <div className="flex items-center space-x-2">
                                     <Users className="w-5 h-5 text-gray-500"/>
                                     <span className="text-sm text-gray-600">
                     <strong>{user.followers}</strong> followers
-                  </span>
-                                    <span className="text-sm text-gray-600">·</span>
-                                    <span className="text-sm text-gray-600">
-                    <strong>{user.following}</strong> following
-                  </span>
+                        </span>
+                                        <span className="text-sm text-gray-600">·</span>
+                                        <span className="text-sm text-gray-600">
+                        <strong>{user.following}</strong> following
+                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <Link
-                        to="/settings"
-                        className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                    >
-                        <Edit className="w-5 h-5"/>
-                        <span>Edit Profile</span>
-                    </Link>
+                        {
+                            profileUserId === loginUserId ?
+                            <Link
+                                to="/settings"
+                                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                            >
+                                <Edit className="w-5 h-5"/>
+                                <span>Edit Profile</span>
+                            </Link> : null
+                        }
                 </div>
             </div>
 
             <div className="space-y-8">
                 <h2 className="text-2xl font-bold">Published Stories</h2>
                 {userPosts.map(post => (
-                    <PostCard key={post.id} post={post} userId={id} state={post.state}/>
+                    <PostCard key={post.id} post={post} userId={profileUserId} state={post.state}/>
                 ))}
             </div>
         </div>

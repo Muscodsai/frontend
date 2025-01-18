@@ -53,8 +53,17 @@ const SettingsPage: React.FC = () => {
 
     useEffect(() => {
         try {
-            fetch(`${server}/v1/user/${userId}`, {
-                method: 'GET'
+            // fetch(`${server}/v1/user/${userId}`, {
+            //     method: 'GET'
+            fetch(`${server}/v2/user/get/${userId}`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    requestFields: {},
+                    responseFields: ["username", "email", "bio", "avatar", "emailPreference"],
+                })
             }).then(res => {
                 res.json().then((userData) => {
                     if (res.ok) {
@@ -94,18 +103,22 @@ const SettingsPage: React.FC = () => {
     const onSubmit = async (data: SettingsFormData) => {
         setUpdating(true);
         try {
-            const res = await fetch(`${server}/v1/user/update`, {
-                method: "PUT",
+            // const res = await fetch(`${server}/v1/user/update`, {
+            //     method: "PUT",
+            const res = await fetch(`${server}/v2/user/update/${userId}`, {
+                method: "POST",
                 headers: {
                     'Content-Type': 'application/json',  // Set the correct content type
                 },
                 body: JSON.stringify({
-                    userId: userId,
-                    avatar: data.avatar,
-                    username: data.name,
-                    bio: data.bio,
-                    email: data.email,
-                    preference: data.emailNotifications
+                    requestFields: {
+                        avatar: data.avatar,
+                        username: data.name,
+                        bio: data.bio,
+                        email: data.email,
+                        preference: data.emailNotifications,
+                    },
+                    responseFields: [],
                 })
             });
 

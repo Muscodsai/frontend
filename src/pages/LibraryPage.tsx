@@ -28,20 +28,64 @@ const LibraryPage = () => {
     }
 
     useEffect(() => {
-        const getArticle = async (indexInLibrary: number, articleId: number) => {
+        const getAuthor = async (userId: number) => {
+            let author: any = {id: userId};
             try {
-                let post: any = {};
-                const response = await fetch(`${server}/v1/article/${articleId}`, {
-                    method: 'GET'
+                // const response = await fetch(`${server}/v1/user/${userId}`, {
+                //     method: 'GET'
+                // });
+                const response = await fetch(`${server}/v2/user/get/${userId}`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',  // Set the correct content type
+                    },
+                    body: JSON.stringify({
+                        requestFields: {},
+                        responseFields: ["username", "avatar"],
+                    })
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
-                    post.id = result.id;
+                    author.username = result.username;
+                    author.avatar = result.avatar;
+                } else {
+                    navigate("/");
+                    popup(result.error);
+                }
+            } catch (error) {
+                console.error(error);
+                navigate("/");
+                popup("Unable to Fetch Author's Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+            }
+            return author;
+        }
+
+        const getArticle = async (indexInLibrary: number, articleId: number) => {
+            try {
+                let post: any = {};
+                // const response = await fetch(`${server}/v1/article/${articleId}`, {
+                //     method: 'GET'
+                // });
+                const response = await fetch(`${server}/v2/article/get/${articleId}`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',  // Set the correct content type
+                    },
+                    body: JSON.stringify({
+                        requestFields: {},
+                        responseFields: ["title", "content", "author", "publishTime", "likes", "isSeries", "readTime", "cover"],
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    post.id = articleId;
                     post.title = result.title;
                     post.content = result.content;
-                    post.author = result.author;
+                    post.author = await getAuthor(result.author);
                     post.publishedTime = result.publishTime;
                     post.likes = result.likes;
                     post.isSeries = result.isSeries;
@@ -62,8 +106,18 @@ const LibraryPage = () => {
 
         const getUser = async () => {
             try {
-                const response = await fetch(`${server}/v1/user/${id}`, {
-                    method: 'GET'
+                // const response = await fetch(`${server}/v1/user/${id}`, {
+                //     method: 'GET'
+                // });
+                const response = await fetch(`${server}/v2/user/get/${id}`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',  // Set the correct content type
+                    },
+                    body: JSON.stringify({
+                        requestFields: {},
+                        responseFields: ["library"],
+                    })
                 });
 
                 const result = await response.json();
