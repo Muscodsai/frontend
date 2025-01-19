@@ -37,7 +37,7 @@ const LibraryPage = () => {
                 const response = await fetch(`${server}/v2/user/get/${userId}`, {
                     method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',  // Set the correct content type
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         requestFields: {},
@@ -71,7 +71,7 @@ const LibraryPage = () => {
                 const response = await fetch(`${server}/v2/article/get/${articleId}`, {
                     method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',  // Set the correct content type
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         requestFields: {},
@@ -86,12 +86,13 @@ const LibraryPage = () => {
                     post.title = result.title;
                     post.content = result.content;
                     post.author = await getAuthor(result.author);
-                    post.publishedTime = result.publishTime;
-                    post.likes = result.likes;
+                    post.publishTime = result.publishTime;
+                    post.likes = result.likes.length;
                     post.isSeries = result.isSeries;
                     post.readTime = result.readTime;
                     post.cover = result.cover;
 
+                    post.likedState = result.likes.indexOf(id) > -1;
                     library[indexInLibrary] = post;
                 } else {
                     navigate("/");
@@ -112,7 +113,7 @@ const LibraryPage = () => {
                 const response = await fetch(`${server}/v2/user/get/${id}`, {
                     method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',  // Set the correct content type
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         requestFields: {},
@@ -181,8 +182,8 @@ const LibraryPage = () => {
             <div className="grid gap-8">
                 {
                     activeTab === 'single'
-                    ? articles.map(post => <PostCard key={post.id} post={post} userId={id} state={true}/>)
-                    : series.map(series => <PostCard key={series.id} post={series} userId={id} state={true}/>)
+                    ? articles.map(article => <PostCard key={article.id} post={article} userId={id} bookmarkState={true} likedState={article.likedState}/>)
+                    : series.map(series => <PostCard key={series.id} post={series} userId={id} bookmarkState={true} likedState={series.likedState}/>)
                 }
             </div>
         </div>

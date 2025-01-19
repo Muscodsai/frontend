@@ -1,18 +1,20 @@
-import {ThumbsUp, Bookmark, BookOpen, Bookmarked} from '../../asserts/icons';
+import {Like, Bookmark, BookOpen, Bookmarked, Liked} from '../../asserts/icons';
 import { Link } from 'react-router-dom';
 import type { Article } from '../../types';
 import {useState} from "react";
-import {bookmark} from "../../hooks/bookmark.ts";
+import {bookmark, like} from "../../hooks/Interaction.ts";
 
 
 interface PostCardProps {
     post: Article;
     userId: number;
-    state: boolean;
+    bookmarkState: boolean;
+    likedState: boolean;
 }
 
-const PostCard = ({ post, userId, state }: PostCardProps) => {
-    const [bookmarked, setBookmarked] = useState<boolean>(state);
+const PostCard = ({ post, userId, bookmarkState, likedState }: PostCardProps) => {
+    const [bookmarked, setBookmarked] = useState<boolean>(bookmarkState);
+    const [liked, setLiked] = useState<boolean>(likedState);
     return (
         <article className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
             <Link to={`/post/${post.id}`}>
@@ -48,14 +50,19 @@ const PostCard = ({ post, userId, state }: PostCardProps) => {
                             <BookOpen className="w-4 h-4 mr-1"  />
                             {post.readTime} min read
                         </span>
-                        <span className="flex items-center text-gray-500">
-                        <ThumbsUp className="w-4 h-4 mr-1" />
+                        <button
+                            onClick={async () => await like(liked, setLiked, post, userId)}
+                            className="flex items-center text-gray-500"
+                        >
+                            { liked
+                                ? <Liked className="w-4 h-4 mr-1"/>
+                                : <Like className="w-4 h-4 mr-1"/>
+                            }
                             {post.likes}
-                        </span>
+                        </button>
                     </div>
                     <button onClick={async () => await bookmark(bookmarked, setBookmarked, post.id, userId)} className="text-gray-500 hover:text-gray-700">
-                        {
-                            bookmarked
+                        { bookmarked
                             ? <Bookmarked className="w-5 h-5" />
                             : <Bookmark className="w-5 h-5" />
                         }

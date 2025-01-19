@@ -1,4 +1,4 @@
-import {Bookmark, BookOpen, ThumbsUp} from '../asserts/icons';
+import {Bookmark, BookOpen, Like} from '../asserts/icons';
 
 const HomePage = () => {
     const featuredPosts = [
@@ -35,14 +35,14 @@ const HomePage = () => {
 
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-4">
-                  <span className="flex items-center text-gray-500">
-                    <BookOpen className="w-4 h-4 mr-1"/>
-                      {post.readTime} min read
-                  </span>
                                     <span className="flex items-center text-gray-500">
-                    <ThumbsUp className="w-4 h-4 mr-1"/>
+                                        <BookOpen className="w-4 h-4 mr-1"/>
+                                        {post.readTime} min read
+                                    </span>
+                                    <span className="flex items-center text-gray-500">
+                                        <Like className="w-4 h-4 mr-1"/>
                                         {post.likes}
-                  </span>
+                                    </span>
                                 </div>
                                 <button className="text-gray-500 hover:text-gray-700">
                                     <Bookmark className="w-5 h-5"/>

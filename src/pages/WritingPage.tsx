@@ -39,7 +39,7 @@ const WritingPage = () => {
             // const response = await fetch(`${server}/v1/article/upload`, {
             //     method: 'POST',
             //     headers: {
-            //         'Content-Type': 'application/json',  // Set the correct content type
+            //         'Content-Type': 'application/json',
             //     },
             //     body: JSON.stringify({
             //         session: userId,  // use userId as session for now; when replacing with the actual session, remember to update getAuthorName method in article.js in backend.
@@ -56,7 +56,7 @@ const WritingPage = () => {
             const response = await fetch(`${server}/v2/article/upload/-1`, {
                 method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',  // Set the correct content type
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     requestFields: {

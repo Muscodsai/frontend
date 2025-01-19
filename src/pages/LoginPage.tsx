@@ -50,7 +50,7 @@ const LoginPage = () => {
             const response = await fetch(`${server}/v2/auth/login/-1`, {
                 method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',  // Set the correct content type
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     requestFields: {
@@ -63,7 +63,7 @@ const LoginPage = () => {
             // const response = await fetch(`${server}/v1/signin`, {
             //     method: 'POST',
             //     headers: {
-            //         'Content-Type': 'application/json',  // Set the correct content type
+            //         'Content-Type': 'application/json',
             //     },
             //     body: JSON.stringify({
             //         email: data.email,

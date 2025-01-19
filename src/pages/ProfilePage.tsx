@@ -1,11 +1,12 @@
 import {Link, useNavigate, useParams} from 'react-router-dom';
-import {Edit, Users} from '../asserts/icons';
+import {Edit, Follow, Following, Users} from '../asserts/icons';
 import PostCard from '../components/post/PostCard';
 import {useEffect, useState} from "react";
 import {server} from "../utils/address.ts";
 import {readCookies} from "../utils/cookies.ts";
 import {popup} from "../utils/popup.ts";
 import {Loading} from "../asserts/loading.tsx";
+import {follow} from "../hooks/Interaction.ts";
 
 const ProfilePage = () => {
     const cookies = readCookies();
@@ -15,9 +16,10 @@ const ProfilePage = () => {
     const [user, setUser] = useState<any>();
     const [userPosts, setPost] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [following, setFollowing] = useState<boolean>(false);
 
     useEffect(() => {
-        const getArticle = async (articleId: number, user: any) => {
+        const getArticle = async (articleId: number, profileUser: any, loginUser: any) => {
             try {
                 let post: any = {};
                 // const response = await fetch(`${server}/v1/article/${articleId}`, {
@@ -26,7 +28,7 @@ const ProfilePage = () => {
                 const response = await fetch(`${server}/v2/article/get/${articleId}`, {
                     method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',  // Set the correct content type
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         requestFields: {},
@@ -40,14 +42,15 @@ const ProfilePage = () => {
                     post.id = articleId;
                     post.title = result.title;
                     post.content = result.content;
-                    post.author = user;
-                    post.publishedTime = result.publishTime;
-                    post.likes = result.likes;
+                    post.author = profileUser;
+                    post.publishTime = result.publishTime;
+                    post.likes = result.likes.length;
                     post.isSeries = result.isSeries;
                     post.readTime = result.readTime;
                     post.cover = result.cover;
 
-                    post.state = user.library.indexOf(post.id) > -1;
+                    post.bookmarkState = loginUser.library.indexOf(post.id) > -1;
+                    post.likedState = result.likes.indexOf(loginUserId) > -1;
                     return post;
                 } else {
                     navigate("/");
@@ -60,7 +63,7 @@ const ProfilePage = () => {
             }
         }
 
-        const getUser = async () => {
+        const getProfileUser = async () => {
             let user: any = {};
             try {
                 // const response = await fetch(`${server}/v1/user/${profileUserId}`, {
@@ -73,7 +76,7 @@ const ProfilePage = () => {
                     },
                     body: JSON.stringify({
                         requestFields: {},
-                        responseFields: ["username", "email", "followers", "following", "avatar", "bio", "library", "publications"],
+                        responseFields: ["username", "followers", "following", "avatar", "bio", "publications"],
                     })
                 });
 
@@ -82,14 +85,47 @@ const ProfilePage = () => {
                 if (response.ok) {
                     user.id = profileUserId;
                     user.username = result.username;
-                    user.email = result.email;
                     user.followers = result.followers.length;
                     user.following = result.following.length;
                     user.avatar = result.avatar;
                     user.bio = result.bio;
-                    user.library = result.library;
                     user.publications = result.publications;
+
+                    if (profileUserId !== loginUserId && result.followers.indexOf(loginUserId) !== -1) {
+                        setFollowing(true);
+                    }
+
                     setUser(user);
+                    return user;
+                } else {
+                    navigate("/login");
+                    popup(result.error);
+                }
+            } catch (error) {
+                console.error(error);
+                navigate("/login");
+                popup("Unable to Fetch the User's Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+            }
+        }
+
+        const getLoginUser = async () => {
+            let user: any = {};
+            try {
+                const response = await fetch(`${server}/v2/user/get/${loginUserId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        requestFields: {},
+                        responseFields: ["library"],
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    user.library = result.library;
                     return user;
                 } else {
                     navigate("/login");
@@ -104,10 +140,10 @@ const ProfilePage = () => {
 
         const init = async () => {
             try {
-                const user = await getUser();
+                const [profileUser, loginUser] = await Promise.all([getProfileUser(), getLoginUser()]);
                 let postsPromise: any[] = [];
-                for (let post of user.publications) {
-                    postsPromise.push(getArticle(post, user));
+                for (let post of profileUser.publications) {
+                    postsPromise.push(getArticle(post, profileUser, loginUser));
                 }
                 setPost(await Promise.all(postsPromise));
             } catch (ignore) {}  // already handled
@@ -149,13 +185,25 @@ const ProfilePage = () => {
                         </div>
                         {
                             profileUserId === loginUserId ?
-                            <Link
-                                to="/settings"
-                                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                            >
-                                <Edit className="w-5 h-5"/>
-                                <span>Edit Profile</span>
-                            </Link> : null
+                                <Link
+                                    to="/settings"
+                                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                                >
+                                    <Edit className="w-5 h-5"/>
+                                    <span>Edit Profile</span>
+                                </Link>
+                                :
+                                <button
+                                    onClick={async() => await follow(following, setFollowing, user, loginUserId)}
+                                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                                >
+                                    {
+                                        following
+                                            ? <Following className="w-5 h-5"/>
+                                            : <Follow className="w-5 h-5"/>
+                                    }
+                                    <span>{following? "Following": "Follow"}</span>
+                                </button>
                         }
                 </div>
             </div>
@@ -163,7 +211,7 @@ const ProfilePage = () => {
             <div className="space-y-8">
                 <h2 className="text-2xl font-bold">Published Stories</h2>
                 {userPosts.map(post => (
-                    <PostCard key={post.id} post={post} userId={profileUserId} state={post.state}/>
+                    <PostCard key={post.id} post={post} userId={loginUserId} bookmarkState={post.bookmarkState} likedState={post.likedState}/>
                 ))}
             </div>
         </div>

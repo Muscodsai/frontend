@@ -108,7 +108,7 @@ const SettingsPage: React.FC = () => {
             const res = await fetch(`${server}/v2/user/update/${userId}`, {
                 method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',  // Set the correct content type
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     requestFields: {

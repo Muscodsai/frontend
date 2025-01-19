@@ -40,7 +40,7 @@ const RegisterPage = () => {
             // const response = await fetch(`${server}/v1/signup`, {
             //     method: 'POST',
             //     headers: {
-            //         'Content-Type': 'application/json',  // Set the correct content type
+            //         'Content-Type': 'application/json',
             //     },
             //     body: JSON.stringify({
             //         email: data.email,
@@ -48,7 +48,7 @@ const RegisterPage = () => {
             //         password: SHA256(data.password).toString(),
             //     })
             // });
-            const response = await fetch(`${server}/v2/auth/signup/-1`, {
+            const response = await fetch(`${server}/v2/auth/register/-1`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

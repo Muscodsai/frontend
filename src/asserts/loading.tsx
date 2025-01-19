@@ -41,9 +41,7 @@ export function Loading ({ message = "Loading...", scale = 1.0, color = "#000", 
                     );
                 })}
             </svg>
-            { message
-                ? <h1>{message}</h1>
-                : null }
+            { message? <h1>{message}</h1> : null }
         </div>
     );
 }
@@ -82,9 +80,7 @@ export function LGBTLoading ({ message = "Loading...", scale = 1.0 }: { message?
                         );
                     })}
             </svg>
-            { message
-                ? <h1>{message}</h1>
-                : null }
+            { message? <h1>{message}</h1> : null }
         </div>
     );
 }

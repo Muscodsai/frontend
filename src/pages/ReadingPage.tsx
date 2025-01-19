@@ -1,9 +1,9 @@
 import {Link, useNavigate, useParams} from 'react-router-dom';
-import {Bookmark, Bookmarked, MessageCircle, Share2, ThumbsUp} from '../asserts/icons';
+import {Bookmark, Bookmarked, Like, Liked, MessageCircle, Share2} from '../asserts/icons';
 import {server} from "../utils/address.ts";
 import {useEffect, useState} from "react";
 import {popup} from "../utils/popup.ts";
-import {bookmark} from "../hooks/bookmark.ts";
+import {bookmark, like} from "../hooks/Interaction.ts";
 import {readCookies} from "../utils/cookies.ts";
 import {Loading} from "../asserts/loading.tsx";
 
@@ -24,11 +24,12 @@ const ReadingPage = () => {
             avatar: '',
             bio: ''
         },
-        publishedTime: '',
+        publishTime: '',
         readTime: 0,
         likes: 0
     });
     const [bookmarked, setBookmarked] = useState<boolean>(false);
+    const [liked, setLiked] = useState<boolean>(false);
 
     useEffect(() => {
         const getInitialState = async (): Promise<boolean> => {
@@ -39,7 +40,7 @@ const ReadingPage = () => {
                 const response = await fetch(`${server}/v2/user/get/${userId}`, {
                     method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',  // Set the correct content type
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         requestFields: {},
@@ -109,11 +110,11 @@ const ReadingPage = () => {
                 const response = await fetch(`${server}/v2/article/get/${id}`, {
                     method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',  // Set the correct content type
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         requestFields: {},
-                        responseFields: ["title", "content", "publishedTime", "readTime", "likes", "author", "cover"],
+                        responseFields: ["title", "content", "publishTime", "readTime", "likes", "author", "cover"],
                     })
                 });
 
@@ -122,12 +123,14 @@ const ReadingPage = () => {
                 if (response.ok) {
                     post.title = result.title;
                     post.content = result.content;
-                    post.publishedTime = result.publishTime;
+                    post.publishTime = result.publishTime;
                     post.readTime = result.readTime;
-                    post.likes = result.likes;
+                    post.likes = result.likes.length;
                     post.author = await getAuthor(result.author);
                     post.cover = result.cover;
                     setLoadingArticle(false);
+
+                    setLiked(result.likes.indexOf(userId) !== -1);
                     return post;
                 } else {
                     navigate("/");
@@ -202,8 +205,14 @@ const ReadingPage = () => {
 
             <div className="flex items-center justify-between border-t pt-6">
                 <div className="flex items-center space-x-6">
-                    <button className="flex items-center space-x-2 text-gray-500 hover:text-gray-700">
-                        <ThumbsUp className="w-5 h-5"/>
+                    <button
+                        onClick={async () => await like(liked, setLiked, post, userId)}
+                        className="flex items-center space-x-2 text-gray-500 hover:text-gray-700"
+                    >
+                        { liked?
+                            <Liked className="w-5 h-5"/>:
+                            <Like className="w-5 h-5"/>
+                        }
                         <span>{post.likes}</span>
                     </button>
                     <button className="flex items-center space-x-2 text-gray-500 hover:text-gray-700">
