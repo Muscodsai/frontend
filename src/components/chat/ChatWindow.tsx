@@ -66,7 +66,7 @@ const ChatWindow = ({ chat }: ChatWindowProps) => {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Type a message..."
-                        className="flex-1 rounded-lg border-gray-300 focus:ring-gray-500 focus:border-gray-500"
+                        className="flex-1 rounded-lg border-gray-300 focus:ring-gray-500 focus:border-gray-500 p-2 rounded-lg"
                         onKeyPress={(e) => {
                             if (e.key === 'Enter') {
                                 handleSend();

@@ -139,8 +139,10 @@ const ProfilePage = () => {
         }
 
         const init = async () => {
+            document.title = 'Profile';
             try {
                 const [profileUser, loginUser] = await Promise.all([getProfileUser(), getLoginUser()]);
+                document.title = profileUserId === loginUserId? "Your Profile" : `${profileUser.username}'${profileUser.username[profileUser.username.length-1] === 's'? '' : 's'} Profile`;
                 let postsPromise: any[] = [];
                 for (let post of profileUser.publications) {
                     postsPromise.push(getArticle(post, profileUser, loginUser));
@@ -175,43 +177,44 @@ const ProfilePage = () => {
                                     <span className="text-sm text-gray-600">
                     <strong>{user.followers}</strong> followers
                         </span>
-                                        <span className="text-sm text-gray-600">·</span>
-                                        <span className="text-sm text-gray-600">
+                                    <span className="text-sm text-gray-600">·</span>
+                                    <span className="text-sm text-gray-600">
                         <strong>{user.following}</strong> following
                         </span>
-                                    </div>
                                 </div>
                             </div>
                         </div>
-                        {
-                            profileUserId === loginUserId ?
-                                <Link
-                                    to="/settings"
-                                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                                >
-                                    <Edit className="w-5 h-5"/>
-                                    <span>Edit Profile</span>
-                                </Link>
-                                :
-                                <button
-                                    onClick={async() => await follow(following, setFollowing, user, loginUserId)}
-                                    className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                                >
-                                    {
-                                        following
-                                            ? <Following className="w-5 h-5"/>
-                                            : <Follow className="w-5 h-5"/>
-                                    }
-                                    <span>{following? "Following": "Follow"}</span>
-                                </button>
-                        }
+                    </div>
+                    {
+                        profileUserId === loginUserId ?
+                            <Link
+                                to="/settings"
+                                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                            >
+                                <Edit className="w-5 h-5"/>
+                                <span>Edit Profile</span>
+                            </Link>
+                            :
+                            <button
+                                onClick={async () => await follow(following, setFollowing, user, loginUserId)}
+                                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                            >
+                                {
+                                    following
+                                        ? <Following className="w-5 h-5"/>
+                                        : <Follow className="w-5 h-5"/>
+                                }
+                                <span>{following ? "Following" : "Follow"}</span>
+                            </button>
+                    }
                 </div>
             </div>
 
             <div className="space-y-8">
                 <h2 className="text-2xl font-bold">Published Stories</h2>
                 {userPosts.map(post => (
-                    <PostCard key={post.id} post={post} userId={loginUserId} bookmarkState={post.bookmarkState} likedState={post.likedState}/>
+                    <PostCard key={post.id} post={post} userId={loginUserId} bookmarkState={post.bookmarkState}
+                              likedState={post.likedState}/>
                 ))}
             </div>
         </div>

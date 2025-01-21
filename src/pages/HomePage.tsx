@@ -1,6 +1,7 @@
 import {Bookmark, BookOpen, Like} from '../asserts/icons';
 
 const HomePage = () => {
+    document.title = 'Discover Stories';
     const featuredPosts = [
         {
             id: '1',

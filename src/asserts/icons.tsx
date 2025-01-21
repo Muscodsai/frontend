@@ -10,16 +10,6 @@ export function Bookmark(props: SVGProps<SVGSVGElement>) {
     );
 }
 
-
-export function Bookmarked(props: SVGProps<SVGSVGElement>) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-             stroke="orange" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-        </svg>
-    );
-}
-
 export function Edit(props: SVGProps<SVGSVGElement>) {
     return PenSquare(props);
 }
@@ -130,16 +120,6 @@ export function Like(props: SVGProps<SVGSVGElement>) {
     );
 }
 
-export function Liked(props: SVGProps<SVGSVGElement>) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-             stroke="red" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-            <path d="M7 10v12"/>
-            <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/>
-        </svg>
-    );
-}
-
 export function Users(props: SVGProps<SVGSVGElement>) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -159,7 +139,7 @@ export function BookOpen(props: SVGProps<SVGSVGElement>) {
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
         </svg>
-    )
+    );
 }
 
 export function PenSquare(props: SVGProps<SVGSVGElement>) {
@@ -169,7 +149,7 @@ export function PenSquare(props: SVGProps<SVGSVGElement>) {
             <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"/>
         </svg>
-    )
+    );
 }
 
 export function MessageCircle(props: SVGProps<SVGSVGElement>) {
@@ -178,7 +158,7 @@ export function MessageCircle(props: SVGProps<SVGSVGElement>) {
              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
             <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
         </svg>
-    )
+    );
 }
 
 export function User(props: SVGProps<SVGSVGElement>) {
@@ -188,7 +168,7 @@ export function User(props: SVGProps<SVGSVGElement>) {
             <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
         </svg>
-    )
+    );
 }
 
 /**
@@ -208,7 +188,7 @@ export function OAText(props: SVGProps<SVGSVGElement>) {
             <path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
             <path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>
         </svg>
-    )
+    );
 }
 
 /**
@@ -224,7 +204,7 @@ export function Follow(props: SVGProps<SVGSVGElement>) {
             <line x1="19" x2="19" y1="8" y2="14"/>
             <line x1="22" x2="16" y1="11" y2="11"/>
         </svg>
-    )
+    );
 }
 
 /**
@@ -239,5 +219,83 @@ export function Following(props: SVGProps<SVGSVGElement>) {
             <circle cx="9" cy="7" r="4"/>
             <polyline points="16 11 18 13 22 9"/>
         </svg>
-    )
+    );
+}
+
+
+/**
+ * Original:
+ * https://lucide.dev/icons/user-check
+ */
+export function Logout(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" x2="9" y1="12" y2="12"/>
+        </svg>
+    );
+}
+
+/**
+ * Original:
+ * https://lucide.dev/icons/triangle-alert
+ */
+export function AlertTriangle(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
+            <path d="M12 9v4"/>
+            <path d="M12 17h.01"/>
+        </svg>
+    );
+}
+
+/**
+ * Original:
+ * https://lucide.dev/icons/lock-keyhole
+ */
+export function Lock(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+            <circle cx="12" cy="16" r="1"/>
+            <rect x="3" y="10" width="18" height="12" rx="2"/>
+            <path d="M7 10V7a5 5 0 0 1 10 0v3"/>
+        </svg>
+    );
+}
+
+/**
+ * Original:
+ * https://lucide.dev/icons/key-round
+ */
+export function KeyRound(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+            <path
+                d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/>
+            <circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>
+        </svg>
+    );
+}
+
+/**
+ * Original:
+ * https://lucide.dev/icons/trash2
+ */
+export function Trash(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+            <path d="M3 6h18"/>
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+            <line x1="10" x2="10" y1="11" y2="17"/>
+            <line x1="14" x2="14" y1="11" y2="17"/>
+        </svg>
+    );
 }

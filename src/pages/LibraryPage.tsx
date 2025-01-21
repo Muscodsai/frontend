@@ -8,6 +8,7 @@ import {Loading} from "../asserts/loading.tsx";
 import {useNavigate} from "react-router-dom";
 
 const LibraryPage = () => {
+    document.title = 'Your Library';
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'series' | 'single'>('single');
     const cookies = readCookies();
@@ -182,8 +183,10 @@ const LibraryPage = () => {
             <div className="grid gap-8">
                 {
                     activeTab === 'single'
-                    ? articles.map(article => <PostCard key={article.id} post={article} userId={id} bookmarkState={true} likedState={article.likedState}/>)
-                    : series.map(series => <PostCard key={series.id} post={series} userId={id} bookmarkState={true} likedState={series.likedState}/>)
+                        ? articles.map(article => <PostCard key={article.id} post={article} userId={id}
+                                                            bookmarkState={true} likedState={article.likedState}/>)
+                        : series.map(series => <PostCard key={series.id} post={series} userId={id} bookmarkState={true}
+                                                         likedState={series.likedState}/>)
                 }
             </div>
         </div>

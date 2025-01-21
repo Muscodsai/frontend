@@ -23,7 +23,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
-
+    document.title = 'Login';
     const navigate = useNavigate();
     const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
@@ -74,7 +74,7 @@ const LoginPage = () => {
             const result = await response.json();
 
             if (response.ok) {
-                console.log("Session Info: \n" + result);
+                console.log(`Session ID: ${result.sessionId}`);
                 const cookies = {
                     id: result.id,
                     remember: data.rememberMe,
@@ -168,14 +168,14 @@ const LoginPage = () => {
                     >
                         {
                             isSubmitting ?
-                            <div className="flex flex-row items-center space-x-2">
-                                <Loading message="" scale={0.2} color="#fff"/>
-                                <p className="text-nowrap">Signing in</p>
-                            </div>
+                                <div className="flex flex-row items-center space-x-2">
+                                    <Loading message="" scale={0.2} color="#fff"/>
+                                    <p className="text-nowrap">Signing in</p>
+                                </div>
                                 :
-                            <div>
-                                <p className="text-nowrap">Sign in</p>
-                            </div>
+                                <div>
+                                    <p className="text-nowrap">Sign in</p>
+                                </div>
                         }
                     </button>
                 </div>

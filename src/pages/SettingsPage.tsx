@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Save} from "../asserts/icons";
+import {AlertTriangle, KeyRound, Save, Trash, Lock} from "../asserts/icons";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
@@ -8,6 +8,7 @@ import {clearCookies, readCookies} from "../utils/cookies"
 import {useNavigate} from "react-router-dom";
 import {popup} from "../utils/popup.ts";
 import {Loading} from "../asserts/loading.tsx";
+import {SHA256} from "crypto-js";
 
 const settingsSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -21,9 +22,28 @@ const settingsSchema = z.object({
     }),
 });
 
+const verifyPasswordSchema = z.object({
+    currentPassword: z.string().min(8, 'Password must be at least 8 characters'),
+});
+
+const passwordUpdateSchema = z.object({
+    newPassword: z.string()
+        .min(8, 'Password must be at least 8 characters')
+        .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+        .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+        .regex(/[0-9]/, 'Password must contain at least one number'),
+    confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+});
+
+type PasswordUpdateFormData = z.infer<typeof passwordUpdateSchema>;
+type VerifyPasswordFormData = z.infer<typeof verifyPasswordSchema>;
 type SettingsFormData = z.infer<typeof settingsSchema>;
 
 const SettingsPage: React.FC = () => {
+    document.title = 'Settings';
     const navigate = useNavigate();
     const {
         register,
@@ -46,10 +66,35 @@ const SettingsPage: React.FC = () => {
         },
     });
 
+
+    const {
+        register: registerPasswordUpdate,
+        handleSubmit: handleSubmitPasswordUpdate,
+        formState: { errors: passwordUpdateErrors }
+    } = useForm<PasswordUpdateFormData>({
+        resolver: zodResolver(passwordUpdateSchema),
+    });
+
+    const {
+        register: registerVerify,
+        handleSubmit: handleSubmitVerify,
+        formState: { errors: verifyErrors }
+    } = useForm<VerifyPasswordFormData>({
+        resolver: zodResolver(verifyPasswordSchema),
+    });
+
     const cookies = readCookies();
     const userId = cookies.id;
     const [loading, setLoading] = useState<boolean>(true);
     const [updating, setUpdating] = useState<boolean>(false);
+
+    const [verifying, setVerifying] = useState<boolean>(false);
+    const [updatingPassword, setUpdatingPassword] = useState<boolean>(false);
+    const [deleting, setDeleting] = useState<boolean>(false);
+    const [showDangerZone, setShowDangerZone] = useState<boolean>(false);
+    const [showPasswordReset, setShowPasswordReset] = useState<boolean>(false);
+    const [showDeleteAccount, setShowDeleteAccount] = useState<boolean>(false);
+    const [deleteConfirmation, setDeleteConfirmation] = useState('');
 
     useEffect(() => {
         try {
@@ -62,7 +107,7 @@ const SettingsPage: React.FC = () => {
                 },
                 body: JSON.stringify({
                     requestFields: {},
-                    responseFields: ["username", "email", "bio", "avatar", "emailPreference"],
+                    responseFields: ["username", "email", "bio", "avatar", "emailPreference", "password"],
                 })
             }).then(res => {
                 res.json().then((userData) => {
@@ -78,6 +123,7 @@ const SettingsPage: React.FC = () => {
                                 newMessage: false,
                             },
                         });
+
                         setLoading(false);
                     } else {
                         console.error(`Response code ${res.status}: ${userData.error}`);
@@ -98,7 +144,6 @@ const SettingsPage: React.FC = () => {
             popup("Unable to Fetch Your Details, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
         }
     }, [reset, userId]);
-
 
     const onSubmit = async (data: SettingsFormData) => {
         setUpdating(true);
@@ -145,12 +190,112 @@ const SettingsPage: React.FC = () => {
         setUpdating(false);
     };
 
+    const verifyPassword = async (data: { currentPassword: string }) => {
+        try {
+            setVerifying(true);
+            const res = await fetch(`${server}/v2/user/passwordVerify/${userId}`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    requestFields: {
+                        password: SHA256(data.currentPassword).toString(),
+                    },
+                    responseFields: [],
+                })
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+                if (result.verified) {
+                    setShowDangerZone(true);
+                } else {
+                    setShowDangerZone(false);
+                    popup("Incorrect Password");
+                }
+            } else {
+                setShowDangerZone(false);
+                console.error(result.error);
+                popup("Unable to Verify Password, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+            }
+        } catch (error) {
+            setShowDangerZone(false);
+            console.error(error);
+            popup("Unable to Verify Password, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+        } finally {
+            setVerifying(false);
+        }
+    };
+
+    const updatePassword = async (data: PasswordUpdateFormData) => {
+        try {
+            setUpdatingPassword(true);
+            const res = await fetch(`${server}/v2/user/passwordUpdate/${userId}`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    requestFields: {
+                        password: SHA256(data.newPassword).toString(),
+                    },
+                    responseFields: [],
+                })
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+                popup("Password Successfully Updated");
+            } else {
+                console.error(result.error);
+                popup("Unable to Update Your Password, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+            }
+        } catch (error) {
+            console.error(error);
+            popup("Unable to Update Your Password, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+        } finally {
+            setUpdatingPassword(false);
+        }
+    };
+
+    const deleteAccount = async () => {
+        try {
+            setDeleting(true);
+            const res = await fetch(`${server}/v2/user/deleted/${userId}`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    requestFields: {},
+                    responseFields: [],
+                })
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+                clearCookies();
+                navigate("/login");
+                popup("Your Account Was Successfully Deleted");
+            } else {
+                console.error(result.error);
+                popup("Unable to Delete Your Account, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+            }
+        } catch (error) {
+            console.error(error);
+            popup("Unable to Delete Your Account, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+        } finally {
+            setDeleting(false);
+        }
+    };
+
     if (loading) {
         return <Loading/>;
     }
 
     return (
-        <div className="max-w-2xl mx-auto" /* Add some margin (especially marginTop) */ >
+        <div className="max-w-2xl mx-auto" >
             <div className="flex items-center justify-between mb-8">
                 <h1 className="text-3xl font-bold">Settings</h1>
                 <button
@@ -190,7 +335,7 @@ const SettingsPage: React.FC = () => {
                                 {...register("avatar")}
                                 type="text"  // Maybe type="file" and upload the avatar to the DB, then use the generated URL to that avatar in the DB?
                                 placeholder="Enter image URL"
-                                className="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500"
+                                className="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
                             />
                         </div>
                         {errors.avatar && (
@@ -205,10 +350,9 @@ const SettingsPage: React.FC = () => {
                             Name
                         </label>
                         <input
-                            // for all text inputs, add a padding, especially paddingLeft to show cursor.
                             {...register("name")}
                             type="text"
-                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500"
+                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
                         />
                         {errors.name && (
                             <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
@@ -222,7 +366,7 @@ const SettingsPage: React.FC = () => {
                         <input
                             {...register("email")}
                             type="email"
-                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500"
+                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
                         />
                         {errors.email && (
                             <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -236,7 +380,7 @@ const SettingsPage: React.FC = () => {
                         <textarea
                             {...register("bio")}
                             rows={3}
-                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500"
+                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
                         />
                         {errors.bio && (
                             <p className="mt-1 text-sm text-red-600">{errors.bio.message}</p>
@@ -295,6 +439,170 @@ const SettingsPage: React.FC = () => {
                     </div>
                 </div>
             </form>
+            <div className="bg-white rounded-lg shadow-sm p-6 space-y-6 mt-8">
+                <div className="flex items-center space-x-3">
+                    <AlertTriangle className="w-6 h-6 text-red-500"/>
+                    <h2 className="text-xl font-semibold text-red-500">Danger Zone</h2>
+                </div>
+
+                {!showDangerZone ? (
+                    <form onSubmit={handleSubmitVerify(verifyPassword)} className="space-y-4">
+                        <p className="text-sm text-gray-600">
+                            Please verify your password to access account management options.
+                        </p>
+                        <div>
+                            <div className="flex items-center space-x-2">
+                                <Lock className="w-5 h-5 text-gray-400"/>
+                                <input
+                                    type="password"
+                                    {...registerVerify('currentPassword')}
+                                    placeholder="Enter your current password"
+                                    className="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
+                                />
+                            </div>
+                            {verifyErrors.currentPassword && (
+                                <p className="mt-1 text-sm text-red-600">{verifyErrors.currentPassword.message}</p>
+                            )}
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 justify-items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={verifying}
+                        >
+                            { verifying ?
+                                <div className="flex flex-row space-x-2 w-fit">
+                                    <Loading message="" scale={0.2} color="#fff"/>
+                                    <p className="text-nowrap">Verifying...</p>
+                                </div>
+                                :
+                                <div>
+                                    <p className="text-nowrap">Verify Password</p>
+                                </div>
+                            }
+                        </button>
+                    </form>
+                ) : (
+                    <div className="space-y-6">
+                        <div className="p-4 border border-gray-200 rounded-lg space-y-4">
+                            <div className="flex items-center justify-between">
+                                <button
+                                    className="flex items-center space-x-2 w-full"
+                                    onClick={() => setShowPasswordReset(!showPasswordReset)}
+                                >
+                                    <KeyRound className="w-5 h-5 text-gray-500"/>
+                                    <h3 className="font-medium">Reset Password</h3>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPasswordReset(!showPasswordReset)}
+                                    className="text-sm text-gray-500 hover:text-gray-700"
+                                >
+                                    {showPasswordReset ? 'Cancel' : 'Change'}
+                                </button>
+                            </div>
+
+                            {showPasswordReset && (
+                                <form onSubmit={handleSubmitPasswordUpdate(updatePassword)} className="space-y-4">
+                                    <div>
+                                        <input
+                                            type="password"
+                                            {...registerPasswordUpdate('newPassword')}
+                                            placeholder="New password"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
+                                        />
+                                        {passwordUpdateErrors.newPassword && (
+                                            <p className="mt-1 text-sm text-red-600">{passwordUpdateErrors.newPassword.message}</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <input
+                                            type="password"
+                                            {...registerPasswordUpdate('confirmPassword')}
+                                            placeholder="Confirm new password"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
+                                        />
+                                        {passwordUpdateErrors.confirmPassword && (
+                                            <p className="mt-1 text-sm text-red-600">{passwordUpdateErrors.confirmPassword.message}</p>
+                                        )}
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 justify-items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                        disabled={updatingPassword}
+                                    >
+                                        { updatingPassword ?
+                                            <div className="flex flex-row space-x-2 w-fit">
+                                                <Loading message="" scale={0.2} color="#fff"/>
+                                                <p className="text-nowrap">Updating Your Password...</p>
+                                            </div>
+                                            :
+                                            <div>
+                                                <p className="text-nowrap">Update Password</p>
+                                            </div>
+                                        }
+                                    </button>
+                                </form>
+                            )}
+                        </div>
+
+                        <div className="p-4 border border-red-200 rounded-lg space-y-4">
+                            <div className="flex items-center justify-between">
+                                <button
+                                    className="flex items-center space-x-2 w-full"
+                                    onClick={() => setShowDeleteAccount(!showDeleteAccount)}
+                                >
+                                    <Trash className="w-5 h-5 text-red-500"/>
+                                    <h3 className="font-medium text-red-500">Delete Account</h3>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowDeleteAccount(!showDeleteAccount)}
+                                    className="text-sm text-red-500 hover:text-red-700"
+                                >
+                                    {showDeleteAccount ? 'Cancel' : 'Delete'}
+                                </button>
+                            </div>
+
+                            {showDeleteAccount && (
+                                <div className="space-y-4">
+                                    <p className="text-sm text-gray-600">
+                                        This action cannot be undone. All your data will be permanently deleted.
+                                        To confirm, please type <span className="font-bold">{"Permanently Delete Account"}</span> below:
+                                    </p>
+                                    <input
+                                        type="text"
+                                        value={deleteConfirmation}
+                                        onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                        placeholder="Permanently Delete Account"
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => deleteAccount()}
+                                        disabled={deleteConfirmation !== "Permanently Delete Account" || deleting}
+                                        className={`w-full px-4 py-2 rounded-lg justify-items-center disabled:opacity-50 disabled:cursor-not-allowed ${
+                                            deleteConfirmation === "Permanently Delete Account"
+                                                ? 'bg-red-500 text-white hover:bg-red-600'
+                                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        { deleting ?
+                                            <div className="flex flex-row space-x-2 w-fit">
+                                                <Loading message="" scale={0.2} color="#fff"/>
+                                                <p className="text-nowrap">Deleting...</p>
+                                            </div>
+                                            :
+                                            <div>
+                                                <p className="text-nowrap">Delete My Account</p>
+                                            </div>
+                                        }
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

@@ -5,6 +5,7 @@ import ChatWindow from '../components/chat/ChatWindow';
 import type {Chat} from '../types';
 
 const ChatPage = () => {
+    document.title = 'Chat';
     const [activeChat, setActiveChat] = useState<Chat | null>(null);
     const [chatType, setChatType] = useState<'private' | 'group'>('private');
 

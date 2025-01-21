@@ -13,6 +13,7 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 const ForgotPasswordPage = () => {
+    document.title = 'Forgot Password';
     const {sendResetLink, isLoading, isSuccess} = useForgotPassword();
     const {register, handleSubmit, formState: {errors}} = useForm<ForgotPasswordFormData>({
         resolver: zodResolver(forgotPasswordSchema),

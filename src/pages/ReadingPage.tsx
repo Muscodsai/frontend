@@ -1,5 +1,5 @@
 import {Link, useNavigate, useParams} from 'react-router-dom';
-import {Bookmark, Bookmarked, Like, Liked, MessageCircle, Share2} from '../asserts/icons';
+import {Bookmark, Like, MessageCircle, Share2} from '../asserts/icons';
 import {server} from "../utils/address.ts";
 import {useEffect, useState} from "react";
 import {popup} from "../utils/popup.ts";
@@ -87,7 +87,7 @@ const ReadingPage = () => {
 
                 if (response.ok) {
                     author.id = uid;
-                    author.name = result.username;
+                    author.username = result.username;
                     author.avatar = result.avatar;
                     author.bio = result.bio;
                 } else {
@@ -144,7 +144,9 @@ const ReadingPage = () => {
         }
 
         const init = async () => {
+            document.title = 'Reading';
             const [bookmark, post] = await Promise.all([getInitialState(), getArticle()]);
+            document.title = post.title;
             setBookmarked(bookmark);
             setPost(post);
         }
@@ -172,11 +174,11 @@ const ReadingPage = () => {
                     <div className="flex items-center space-x-4">
                         <img
                             src={post.author.avatar}
-                            alt={post.author.name}
+                            alt={post.author.username}
                             className="w-12 h-12 rounded-full"
                         />
                         <div>
-                            <h3 className="font-medium hover:underline">{post.author.name}</h3>
+                            <h3 className="font-medium hover:underline">{post.author.username}</h3>
                             <p className="text-sm text-gray-500">{post.author.bio}</p>
                         </div>
                     </div>
@@ -186,11 +188,9 @@ const ReadingPage = () => {
                     <button className="text-gray-500 hover:text-gray-700">
                         <Share2 className="w-5 h-5"/>
                     </button>
-                    <button className="text-gray-500 hover:text-gray-700" onClick={async () => await bookmark(bookmarked, setBookmarked, post.id, userId)}>
-                        { bookmarked?
-                            <Bookmarked className="w-5 h-5"/>:
-                            <Bookmark className="w-5 h-5"/>
-                        }
+                    <button className="text-gray-500 hover:text-gray-700"
+                            onClick={async () => await bookmark(bookmarked, setBookmarked, post.id, userId)}>
+                        <Bookmark className={"w-5 h-5" + (bookmarked ? " text-yellow-400" : "")}/>
                     </button>
                 </div>
             </div>
@@ -209,10 +209,7 @@ const ReadingPage = () => {
                         onClick={async () => await like(liked, setLiked, post, userId)}
                         className="flex items-center space-x-2 text-gray-500 hover:text-gray-700"
                     >
-                        { liked?
-                            <Liked className="w-5 h-5"/>:
-                            <Like className="w-5 h-5"/>
-                        }
+                        <Like className={"w-5 h-5" + (liked? "  text-red-500" : "")}/>
                         <span>{post.likes}</span>
                     </button>
                     <button className="flex items-center space-x-2 text-gray-500 hover:text-gray-700">

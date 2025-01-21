@@ -21,6 +21,7 @@ const postSchema = z.object({
 type PostFormData = z.infer<typeof postSchema>;
 
 const WritingPage = () => {
+    document.title = 'Share Your Story';
     const {register, handleSubmit, formState: {errors}} = useForm<PostFormData>({
         resolver: zodResolver(postSchema),
         defaultValues: {
@@ -109,8 +110,7 @@ const WritingPage = () => {
                     }
                 </button>
             </div>
-
-            <form className="space-y-6">
+            <form className="space-y-5">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         Cover Image
@@ -120,11 +120,11 @@ const WritingPage = () => {
                             {...register('cover')}
                             type="text"
                             placeholder="Enter image URL"
-                            className="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500"
+                            className="flex-1 text-sm rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
                         />
                         <button
                             type="button"
-                            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
                         >
                             <Image className="w-5 h-5"/>
                             <span>Browse</span>
@@ -140,7 +140,7 @@ const WritingPage = () => {
                         {...register('title')}
                         type="text"
                         placeholder="Title"
-                        className="w-full text-4xl font-bold border-0 focus:ring-0 placeholder-gray-400"
+                        className="w-full text-2xl font-bold rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
                     />
                     {errors.title && (
                         <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
@@ -152,7 +152,7 @@ const WritingPage = () => {
                         {...register('summary')}
                         type="text"
                         placeholder="Summary"
-                        className="w-full text-2xl font-bold border-0 focus:ring-0 placeholder-gray-400"
+                        className="w-full text-xl font-bold rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
                     />
                     {errors.title && (
                         <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
@@ -160,12 +160,12 @@ const WritingPage = () => {
                 </div>
 
                 <div>
-          <textarea
-              {...register('content')}
-              rows={12}
-              placeholder="Tell your story..."
-              className="w-full border-0 focus:ring-0 placeholder-gray-400 resize-none"
-          />
+                    <textarea
+                        {...register('content')}
+                        rows={12}
+                        placeholder="Tell your story..."
+                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1 mt-1"
+                    />
                     {errors.content && (
                         <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>
                     )}

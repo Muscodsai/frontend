@@ -1,4 +1,4 @@
-import {Like, Bookmark, BookOpen, Bookmarked, Liked} from '../../asserts/icons';
+import {Like, Bookmark, BookOpen} from '../../asserts/icons';
 import { Link } from 'react-router-dom';
 import type { Article } from '../../types';
 import {useState} from "react";
@@ -54,18 +54,12 @@ const PostCard = ({ post, userId, bookmarkState, likedState }: PostCardProps) =>
                             onClick={async () => await like(liked, setLiked, post, userId)}
                             className="flex items-center text-gray-500"
                         >
-                            { liked
-                                ? <Liked className="w-4 h-4 mr-1"/>
-                                : <Like className="w-4 h-4 mr-1"/>
-                            }
+                            <Like className={"w-4 h-4 mr-1" + (liked? " text-red-500" : "")}/>
                             {post.likes}
                         </button>
                     </div>
                     <button onClick={async () => await bookmark(bookmarked, setBookmarked, post.id, userId)} className="text-gray-500 hover:text-gray-700">
-                        { bookmarked
-                            ? <Bookmarked className="w-5 h-5" />
-                            : <Bookmark className="w-5 h-5" />
-                        }
+                        <Bookmark className={"w-5 h-5" + (bookmarked ? " text-yellow-400" : "")} />
                     </button>
                 </div>
             </div>

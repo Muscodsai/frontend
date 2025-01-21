@@ -29,6 +29,7 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const RegisterPage = () => {
+    document.title = 'Register';
     clearCookies();
     const navigate = useNavigate();
     const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<RegisterFormData>({
