@@ -1,19 +1,56 @@
 import { useState } from 'react';
 import { Send } from '../../asserts/icons';
-import type { Chat } from '../../types';
+import {server} from "../../utils/address.ts";
+import {popup} from "../../utils/popup.ts";
+import {readCookies} from "../../utils/cookies.ts";
+import {Loading} from "../../asserts/loading.tsx";
 
-interface ChatWindowProps {
-    chat: Chat;
-}
 
-const ChatWindow = ({ chat }: ChatWindowProps) => {
-    const [message, setMessage] = useState('');
+const ChatWindow = ({ chat }: { chat: any }) => {
+    const [message, setMessage] = useState<string>('');
+    const cookie = readCookies();
+    const uid = cookie.id;
+    const [sending, setSending] = useState<boolean>(false);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (message.trim()) {
-            // Here you would typically send the message to your backend
-            console.log('Sending message:', message);
-            setMessage('');
+            setSending(true);
+            try {
+                const response = await fetch(`${server}/v2/chat/messageSend/${chat.id}`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        requestFields: {
+                            id: uid,
+                            body: message,
+                        },
+                        responseFields: [],
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    const message: any = {};
+                    message.id = result.id;
+                    message.body = result.body;
+                    message.sender = result.sender;
+                    message.sendTime = result.sendTime;
+
+                    chat.messages.push(message);
+                    chat.lastMessage = message;
+                    setMessage('');
+                } else {
+                    popup(result.error);
+                }
+            } catch (error) {
+                console.error(error);
+                popup("Unable to Create a New Chat, Please Try Again Later.\n\nIf the Error Persists, Please Contact Support.");
+            } finally {
+                setSending(false);
+            }
         }
     };
 
@@ -22,40 +59,40 @@ const ChatWindow = ({ chat }: ChatWindowProps) => {
             <div className="border-b border-gray-200 bg-white p-4">
                 <div className="flex items-center space-x-3">
                     <img
-                        src={chat.members[0].avatar}
-                        alt={chat.members[0].username}
+                        src={chat.avatar}
+                        alt={chat.groupName}
                         className="w-10 h-10 rounded-full object-cover"
                     />
                     <div>
-                        <h2 className="font-medium">{chat.members[0].username}</h2>
+                        <h2 className="font-medium">{chat.groupName}</h2>
                         <p className="text-sm text-gray-500">
-                            {chat.members.length === 2 ? 'Group Chat' : 'Private Chat'}
+                            {chat.members.length > 2 ? 'Group Chat' : 'Private Chat'}
                         </p>
                     </div>
                 </div>
             </div>
 
             <div className="flex-1 p-4 overflow-y-auto space-y-4">
-                {chat.messages.map((msg) => (
+                {chat.messages.map((msg: any) => (
                     <div
                         key={msg.id}
                         className={`flex ${
-                          msg.sender.id === '1' ? 'justify-end' : 'justify-start'
+                          msg.sender === uid ? 'justify-end' : 'justify-start'
                         }`}
                     >
                         <div
                             className={`max-w-[70%] rounded-lg p-3 ${
-                            msg.sender.id === '1'
-                                ? 'bg-gray-900 text-white'
-                                : 'bg-white border border-gray-200'
+                                msg.sender === uid
+                                    ? 'bg-gray-900 text-white'
+                                    : 'bg-white border border-gray-200'
                             }`}
                         >
-                            <p>{msg.content}</p>
+                            <p>{msg.body}</p>
                             <span className="text-xs text-gray-400 mt-1 block">
-                                {msg.sendTime.toLocaleTimeString()}
+                                {msg.sendTime.toString()}
                             </span>
                         </div>
-                  </div>
+                    </div>
                 ))}
             </div>
 
@@ -66,18 +103,22 @@ const ChatWindow = ({ chat }: ChatWindowProps) => {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Type a message..."
-                        className="flex-1 rounded-lg border-gray-300 focus:ring-gray-500 focus:border-gray-500 p-2 rounded-lg"
-                        onKeyPress={(e) => {
+                        className="flex-1 rounded-lg border-gray-300 focus:ring-gray-500 focus:border-gray-500 p-2"
+                        onKeyDown={(e) => {
                             if (e.key === 'Enter') {
-                                handleSend();
+                                handleSend().then();
                             }
                         }}
                     />
                     <button
                         onClick={handleSend}
-                        className="p-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800"
+                        disabled={!message.trim() || sending}
+                        className="p-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-75 disabled:cursor-not-allowed"
                     >
-                        <Send className="w-5 h-5" />
+                        { sending?
+                            <Loading scale={0.2} color="#fff" message=""/> :
+                            <Send className="w-5 h-5"/>
+                        }
                     </button>
                 </div>
             </div>

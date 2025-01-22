@@ -24,17 +24,6 @@ export function Home(props: SVGProps<SVGSVGElement>) {
     );
 }
 
-export function Image(props: SVGProps<SVGSVGElement>) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-            <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
-            <circle cx="9" cy="9" r="2"/>
-            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-        </svg>
-    );
-}
-
 export function Layers(props: SVGProps<SVGSVGElement>) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -84,7 +73,8 @@ export function Send(props: SVGProps<SVGSVGElement>) {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
             <path
-                d="M10.55 2.533a2.25 2.25 0 0 1 2.9 0l6.75 5.695c.508.427.8 1.056.8 1.72v9.802a1.75 1.75 0 0 1-1.75 1.75h-3a1.75 1.75 0 0 1-1.75-1.75v-5a.75.75 0 0 0-.75-.75h-3.5a.75.75 0 0 0-.75.75v5a1.75 1.75 0 0 1-1.75 1.75h-3A1.75 1.75 0 0 1 3 19.75V9.947c0-.663.292-1.292.8-1.72l6.75-5.694Z"/>
+                d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/>
+            <path d="m21.854 2.147-10.94 10.939"/>
         </svg>
     );
 }
@@ -342,6 +332,20 @@ export function Upload(props: SVGProps<SVGSVGElement>) {
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="17 8 12 3 7 8"/>
             <line x1="12" x2="12" y1="3" y2="15"/>
+        </svg>
+    );
+}
+
+/**
+ * Original:
+ * https://lucide.dev/icons/plus
+ */
+export function Plus(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+            <path d="M5 12h14"/>
+            <path d="M12 5v14"/>
         </svg>
     );
 }
