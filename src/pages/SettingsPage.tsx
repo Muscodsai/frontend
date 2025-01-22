@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {AlertTriangle, KeyRound, Save, Trash, Lock} from "../asserts/icons";
+import {AlertTriangle, KeyRound, Save, Trash, Lock, HidePassword, ShowPassword} from "../asserts/icons";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
@@ -9,12 +9,13 @@ import {useNavigate} from "react-router-dom";
 import {popup} from "../utils/popup.ts";
 import {Loading} from "../asserts/loading.tsx";
 import {SHA256} from "crypto-js";
+import ImageUpload from "../components/post/ImageUpload.tsx";
 
 const settingsSchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    bio: z.string().max(160, "Bio must be less than 160 characters"),
-    avatar: z.string().url("Please enter a valid image URL"),
+    name: z.string().min(2, 'Name must be at least 2 characters'),
+    email: z.string().email('Invalid email address'),
+    bio: z.string().max(160, 'Bio must be less than 160 characters'),
+    avatar: z.string().url('Invalid image URL'),
     emailNotifications: z.object({
         newFollower: z.boolean(),
         newComment: z.boolean(),
@@ -50,6 +51,7 @@ const SettingsPage: React.FC = () => {
         handleSubmit,
         reset,
         watch,
+        setValue,
         formState: {errors},
     } = useForm<SettingsFormData>({
         resolver: zodResolver(settingsSchema),
@@ -65,7 +67,6 @@ const SettingsPage: React.FC = () => {
             },
         },
     });
-
 
     const {
         register: registerPasswordUpdate,
@@ -83,6 +84,8 @@ const SettingsPage: React.FC = () => {
         resolver: zodResolver(verifyPasswordSchema),
     });
 
+    const avatarUrl = watch('avatar');
+
     const cookies = readCookies();
     const userId = cookies.id;
     const [loading, setLoading] = useState<boolean>(true);
@@ -95,6 +98,10 @@ const SettingsPage: React.FC = () => {
     const [showPasswordReset, setShowPasswordReset] = useState<boolean>(false);
     const [showDeleteAccount, setShowDeleteAccount] = useState<boolean>(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState('');
+
+    const [showCurrentPassword, setShowCurrentPassword] = useState<boolean>(false);
+    const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
     useEffect(() => {
         try {
@@ -325,24 +332,11 @@ const SettingsPage: React.FC = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Profile Picture
                         </label>
-                        <div className="flex items-center space-x-4">
-                            <img
-                                src={watch('avatar')}
-                                alt="Profile"
-                                className="w-16 h-16 rounded-full object-cover"
-                            />
-                            <input  // Maybe remove this input, and let the user click on the avatar to update?
-                                {...register("avatar")}
-                                type="text"  // Maybe type="file" and upload the avatar to the DB, then use the generated URL to that avatar in the DB?
-                                placeholder="Enter image URL"
-                                className="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
-                            />
-                        </div>
-                        {errors.avatar && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors.avatar.message}
-                            </p>
-                        )}
+                        <ImageUpload
+                            onUpload={(url) => setValue('avatar', url)}
+                            defaultImage={avatarUrl}
+                            className="w-32 h-32 flex-shrink-0"
+                        />
                     </div>
 
                     <div>
@@ -453,12 +447,26 @@ const SettingsPage: React.FC = () => {
                         <div>
                             <div className="flex items-center space-x-2">
                                 <Lock className="w-5 h-5 text-gray-400"/>
-                                <input
-                                    type="password"
-                                    {...registerVerify('currentPassword')}
-                                    placeholder="Enter your current password"
-                                    className="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
-                                />
+                                <div className="relative w-full">
+                                    <input
+                                        type={showCurrentPassword ? 'text' : 'password'}
+                                        {...registerVerify('currentPassword')}
+                                        placeholder="Enter your current password"
+                                        className="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1 w-full"
+                                    />
+                                    <button
+                                        type="button"
+                                        onMouseDown={() => setShowCurrentPassword(true)}
+                                        onMouseUp={() => setShowCurrentPassword(false)}
+                                        onMouseLeave={() => setShowCurrentPassword(false)}
+                                        className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                                    >
+                                        {showCurrentPassword ?
+                                            <HidePassword className="w-5 h-5"/> :
+                                            <ShowPassword className="w-5 h-5"/>
+                                        }
+                                    </button>
+                                </div>
                             </div>
                             {verifyErrors.currentPassword && (
                                 <p className="mt-1 text-sm text-red-600">{verifyErrors.currentPassword.message}</p>
@@ -469,9 +477,9 @@ const SettingsPage: React.FC = () => {
                             className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 justify-items-center disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={verifying}
                         >
-                            { verifying ?
+                            {verifying ?
                                 <div className="flex flex-row space-x-2 w-fit">
-                                    <Loading message="" scale={0.2} color="#fff"/>
+                                <Loading message="" scale={0.2} color="#fff"/>
                                     <p className="text-nowrap">Verifying...</p>
                                 </div>
                                 :
@@ -503,24 +511,48 @@ const SettingsPage: React.FC = () => {
 
                             {showPasswordReset && (
                                 <form onSubmit={handleSubmitPasswordUpdate(updatePassword)} className="space-y-4">
-                                    <div>
+                                    <div className="relative w-full">
                                         <input
-                                            type="password"
+                                            type={showNewPassword ? 'text' : 'password'}
                                             {...registerPasswordUpdate('newPassword')}
                                             placeholder="New password"
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
                                         />
+                                        <button
+                                            type="button"
+                                            onMouseDown={() => setShowNewPassword(true)}
+                                            onMouseUp={() => setShowNewPassword(false)}
+                                            onMouseLeave={() => setShowNewPassword(false)}
+                                            className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                                        >
+                                            {showNewPassword ?
+                                                <HidePassword className="w-5 h-5"/> :
+                                                <ShowPassword className="w-5 h-5"/>
+                                            }
+                                        </button>
                                         {passwordUpdateErrors.newPassword && (
                                             <p className="mt-1 text-sm text-red-600">{passwordUpdateErrors.newPassword.message}</p>
                                         )}
                                     </div>
-                                    <div>
+                                    <div className="relative w-full">
                                         <input
-                                            type="password"
+                                            type={showConfirmPassword ? 'text' : 'password'}
                                             {...registerPasswordUpdate('confirmPassword')}
                                             placeholder="Confirm new password"
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
                                         />
+                                        <button
+                                            type="button"
+                                            onMouseDown={() => setShowConfirmPassword(true)}
+                                            onMouseUp={() => setShowConfirmPassword(false)}
+                                            onMouseLeave={() => setShowConfirmPassword(false)}
+                                            className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                                        >
+                                            {showConfirmPassword ?
+                                                <HidePassword className="w-5 h-5"/> :
+                                                <ShowPassword className="w-5 h-5"/>
+                                            }
+                                        </button>
                                         {passwordUpdateErrors.confirmPassword && (
                                             <p className="mt-1 text-sm text-red-600">{passwordUpdateErrors.confirmPassword.message}</p>
                                         )}
@@ -530,7 +562,7 @@ const SettingsPage: React.FC = () => {
                                         className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 justify-items-center disabled:opacity-50 disabled:cursor-not-allowed"
                                         disabled={updatingPassword}
                                     >
-                                        { updatingPassword ?
+                                        {updatingPassword ?
                                             <div className="flex flex-row space-x-2 w-fit">
                                                 <Loading message="" scale={0.2} color="#fff"/>
                                                 <p className="text-nowrap">Updating Your Password...</p>

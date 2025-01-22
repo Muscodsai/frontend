@@ -6,9 +6,10 @@ import AuthLayout from '../components/auth/AuthLayout';
 import {server} from "../utils/address.ts";
 import {SHA256} from "crypto-js";
 import {clearCookies, readCookies, setCookies} from "../utils/cookies.ts";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {popup} from "../utils/popup.ts";
 import {Loading} from "../asserts/loading.tsx";
+import {HidePassword, ShowPassword} from "../asserts/icons.tsx";
 
 const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
@@ -28,6 +29,8 @@ const LoginPage = () => {
     const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
     });
+
+    const [showPassword, setShowPassword] = useState<boolean>(false);
 
     useEffect(() => {
         const cookies = readCookies();
@@ -126,14 +129,26 @@ const LoginPage = () => {
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                         Password
                     </label>
-                    <div className="mt-1">
+                    <div className="mt-1 relative">
                         <input
                             {...register('password')}
                             id="password"
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             autoComplete="current-password"
-                            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500"
+                            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-gray-500 focus:border-gray-500 pr-12"
                         />
+                        <button
+                            type="button"
+                            onMouseDown={() => setShowPassword(true)}
+                            onMouseUp={() => setShowPassword(false)}
+                            onMouseLeave={() => setShowPassword(false)}
+                            className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                        >
+                            { showPassword?
+                                <HidePassword className="w-5 h-5"/> :
+                                <ShowPassword className="w-5 h-5"/>
+                            }
+                        </button>
                         {errors.password && (
                             <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
                         )}

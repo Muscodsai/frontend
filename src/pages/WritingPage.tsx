@@ -1,19 +1,20 @@
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {z} from 'zod';
-import {Image, Save} from '../asserts/icons';
+import {Save} from '../asserts/icons';
 import {server} from "../utils/address.ts";
 import {readCookies} from "../utils/cookies.ts";
 import {popup} from "../utils/popup.ts";
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
 import {Loading} from "../asserts/loading.tsx";
+import ImageUpload from "../components/post/ImageUpload.tsx";
 
 const postSchema = z.object({
     title: z.string().min(1, 'Title is required').max(100, 'Your title is too long'),
     summary: z.string().min(1, 'Summary is required').max(100, 'Your summary is too long'),
     content: z.string().min(1, 'Content is required'),
-    cover: z.string().url('Please enter a valid image URL'),
+    cover: z.string().url('Please upload a cover image'),
     isSeries: z.boolean(),
     seriesName: z.string().optional(),
 });
@@ -22,12 +23,14 @@ type PostFormData = z.infer<typeof postSchema>;
 
 const WritingPage = () => {
     document.title = 'Share Your Story';
-    const {register, handleSubmit, formState: {errors}} = useForm<PostFormData>({
+    const {register, handleSubmit, watch, setValue, formState: {errors}} = useForm<PostFormData>({
         resolver: zodResolver(postSchema),
         defaultValues: {
             isSeries: false,
         },
     });
+
+    const cover = watch('cover');
 
     const cookies = readCookies();
     const userId = cookies.id;
@@ -62,6 +65,7 @@ const WritingPage = () => {
                 body: JSON.stringify({
                     requestFields: {
                         session: userId,  // use userId as session for now; when replacing with the actual session, remember to update getAuthorName method in article.js in backend.
+                        cover: data.cover,
                         title: data.title,
                         summary: data.summary,
                         content: data.content,
@@ -116,19 +120,11 @@ const WritingPage = () => {
                         Cover Image
                     </label>
                     <div className="flex items-center space-x-4">
-                        <input
-                            {...register('cover')}
-                            type="text"
-                            placeholder="Enter image URL"
-                            className="flex-1 text-sm rounded-lg border-gray-300 shadow-sm focus:border-gray-500 focus:ring-gray-500 px-2 py-1"
+                        <ImageUpload
+                            onUpload={(url) => setValue('cover', url)}
+                            defaultImage={cover}
+                            className="w-full h-fit flex-shrink-0"
                         />
-                        <button
-                            type="button"
-                            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
-                        >
-                            <Image className="w-5 h-5"/>
-                            <span>Browse</span>
-                        </button>
                     </div>
                     {errors.cover && (
                         <p className="mt-1 text-sm text-red-600">{errors.cover.message}</p>
