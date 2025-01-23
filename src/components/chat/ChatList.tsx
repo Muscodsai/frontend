@@ -54,8 +54,11 @@ const ChatList = ({ chats, activeChat, onSelectChat, newChat}: ChatListProps) =>
                         <div className="flex-1 text-left">
                             <h3 className="font-medium">{chat.groupName}</h3>
                             {chat.lastMessage && (
-                                <p className="text-sm text-gray-500 truncate">
-                                    {chat.lastMessage.body}
+                                <p className="text-sm text-gray-500 truncate overflow-hidden">
+                                    { chat.lastMessage.body.length <= 20?
+                                        chat.lastMessage.body:
+                                        `${chat.lastMessage.body.slice(0, 20)}...`
+                                    }
                                 </p>
                             )}
                         </div>
